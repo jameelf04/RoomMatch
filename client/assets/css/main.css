@@ -4687,3 +4687,37 @@ input, select, textarea {
 		}
 
 	}
+
+	#header .logo strong {
+	color: #ffffff;
+	font-weight: 700;
+}
+
+#header .logo {
+	font-size: 1.5em;
+	letter-spacing: 0.5px;
+}
+
+#header .logo strong {
+	color: #ffffff;
+	font-weight: 700;
+}
+
+#header .logo {
+	font-size: 1.5em;
+	letter-spacing: 0.5px;
+}
+
+#header .logo strong {
+	color: #ffffff;
+	font-weight: 700;
+}
+
+#header .logo {
+	font-size: 1.5em;
+	letter-spacing: 0.5px;
+}
+
+body:not(.landing) #header {
+	background-color: #2c2c2c;
+}
