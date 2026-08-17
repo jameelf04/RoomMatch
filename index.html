@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>RoomMatch</title>
+<link rel="stylesheet" href="client/css/style.css">
+</head>
+<body>
+
+<div class="navbar">
+    <h1>RoomMatch</h1>
+</div>
+
+<div class="container">
+
+    <div class="upload_box">
+        <h2>Upload Your Room</h2>
+        <input type="file" id="room_photo" accept="image/*">
+        <div id="preview_area"></div>
+        <div id="color_swatches"></div>
+    </div>
+
+    <div class="prefs_box">
+        <h2>Set Your Preferences</h2>
+
+        <form id="pref_form">
+            <label>Room Type</label>
+            <select id="room_type">
+                <option value="living_room">Living Room</option>
+                <option value="bedroom">Bedroom</option>
+            </select>
+
+            <label>Style</label>
+            <select id="style_pref">
+                <option value="modern">Modern</option>
+                <option value="classic">Classic</option>
+                <option value="scandinavian">Scandinavian</option>
+                <option value="boho">Boho</option>
+                <option value="industrial">Industrial</option>
+            </select>
+
+            <label>Budget (JOD)</label>
+            <input type="number" id="budget" placeholder="e.g. 500">
+
+            <label>Region</label>
+            <select id="region">
+                <option value="jordan">Jordan</option>
+                <option value="gcc">GCC</option>
+                <option value="international">International</option>
+            </select>
+
+            <button type="button" id="submit_btn">Find My Furniture</button>
+        </form>
+    </div>
+
+</div>
+
+<script src="client/js/script.js"></script>
+</body>
+</html>
