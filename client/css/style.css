@@ -664,3 +664,29 @@ a {
     background-color: #7C8B78;
     border-radius: 999px;
 }
+
+.room_palette {
+    margin-top: 24px;
+}
+
+.palette_label {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #7C8B78;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.palette_row {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+}
+
+.palette_row span {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    border: 1px solid rgba(0,0,0,0.08);
+}

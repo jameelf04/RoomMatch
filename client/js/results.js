@@ -236,4 +236,31 @@ if (sessionId) {
     .catch(() => {
         document.querySelector(".bundle_section").style.display = "none";
     });
+}   
+
+const paletteBox = document.getElementById("room_palette");
+
+if (sessionId) {
+    fetch("../../server/php/get_session.php?session=" + sessionId, {
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        }
+    })
+    .then((res) => res.json())
+    .then((s) => {
+        if (s.error) {
+            return;
+        }
+
+        const colors = s.dominant_colors.split(",");
+        let swatches = "";
+        for (let i = 0; i < colors.length; i++) {
+            swatches += `<span style="background:${colors[i]}"></span>`;
+        }
+
+        paletteBox.innerHTML = `
+            <p class="palette_label">Your room's palette</p>
+            <div class="palette_row">${swatches}</div>
+        `;
+    });
 }
