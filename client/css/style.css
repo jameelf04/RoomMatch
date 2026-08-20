@@ -611,3 +611,56 @@ a {
 .fav_btn.faved {
     color: #B34A3C;
 }
+
+.bundle_section {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 48px 40px 48px;
+}
+
+.bundle_head {
+    text-align: center;
+    margin-bottom: 26px;
+}
+
+.bundle_head h2 {
+    font-size: 1.8rem;
+    margin-bottom: 6px;
+}
+
+.bundle_head p {
+    color: #4B4840;
+}
+
+.bundle_section .results_grid {
+    padding: 0;
+    margin-bottom: 0;
+}
+
+.budget_bar {
+    background-color: #FFFFFF;
+    border-radius: 14px;
+    padding: 20px 26px;
+    margin-bottom: 26px;
+}
+
+.budget_text {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    color: #4B4840;
+    margin-bottom: 12px;
+}
+
+.budget_track {
+    height: 10px;
+    background-color: #EDEAE3;
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.budget_fill {
+    height: 100%;
+    background-color: #7C8B78;
+    border-radius: 999px;
+}

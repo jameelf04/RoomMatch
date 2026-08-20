@@ -182,3 +182,58 @@ if (!sessionId) {
         `;
     });
 }
+
+const bundleGrid = document.getElementById("bundle_grid");
+const budgetBar = document.getElementById("budget_bar");
+
+if (sessionId) {
+    fetch("../../server/php/get_bundle.php?session=" + sessionId, {
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        }
+    })
+    .then((res) => res.json())
+    .then((data) => {
+        if (data.error || data.items.length == 0) {
+            document.querySelector(".bundle_section").style.display = "none";
+            return;
+        }
+
+        const usedPercent = Math.round((data.total / data.budget) * 100);
+
+        budgetBar.innerHTML = `
+            <div class="budget_text">
+                <span>Bundle total: <strong>${data.total} JOD</strong></span>
+                <span>Budget: ${data.budget} JOD</span>
+                <span>Remaining: ${data.remaining} JOD</span>
+            </div>
+            <div class="budget_track"><div class="budget_fill" style="width:${usedPercent}%"></div></div>
+        `;
+
+        for (let i = 0; i < data.items.length; i++) {
+            const item = data.items[i];
+            const card = document.createElement("div");
+            card.className = "result_card";
+
+            const catLabel = item.category.replace("_", " ");
+
+            let buyLink = "";
+            if (item.purchase_url != "" && item.purchase_url != null) {
+                buyLink = `<a href="${item.purchase_url}" target="_blank" class="buy_link">View &amp; Buy &rarr;</a>`;
+            }
+
+            card.innerHTML = `
+                <img src="${item.image_url}" alt="${item.name}" class="card_img" />
+                <span class="match_badge">${catLabel}</span>
+                <h3>${item.name}</h3>
+                <p class="price_line">${item.price} JOD &mdash; ${item.store_name}</p>
+                ${buyLink}
+            `;
+
+            bundleGrid.appendChild(card);
+        }
+    })
+    .catch(() => {
+        document.querySelector(".bundle_section").style.display = "none";
+    });
+}
