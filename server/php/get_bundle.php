@@ -31,7 +31,9 @@ $roomType = $session["room_type"];
 $stylePref = $session["style_pref"];
 $budget = $session["budget"];
 $region = $session["region"];
+$roomArea = $session["room_area"];
 $roomColors = explode(",", $session["dominant_colors"]);
+$styleList = explode(",", $stylePref);
 
 function hexToRgb($hex) {
     $hex = str_replace("#", "", $hex);
@@ -60,6 +62,9 @@ if ($roomType == "living_room") {
 }
 
 $sql2 = "SELECT * FROM furniture_items WHERE room_type = '$roomType'";
+if ($roomArea > 0) {
+    $sql2 = $sql2 . " AND min_room_area <= '$roomArea'";
+}
 $result2 = mysqli_query($conn, $sql2);
 
 $scored = array();
@@ -82,8 +87,10 @@ while ($row = mysqli_fetch_assoc($result2)) {
     }
 
     $styleScore = 0.3;
-    if ($row["style"] == $stylePref) {
-        $styleScore = 1;
+    for ($k = 0; $k < count($styleList); $k++) {
+        if ($row["style"] == $styleList[$k]) {
+            $styleScore = 1;
+        }
     }
 
     $regionScore = 0.5;

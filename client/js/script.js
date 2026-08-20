@@ -93,9 +93,17 @@ const submitBtn = document.getElementById("submit_btn");
 
 submitBtn.addEventListener("click", () => {
     const roomType = document.getElementById("room_type").value;
-    const stylePref = document.getElementById("style_pref").value;
     const budget = document.getElementById("budget").value;
     const region = document.getElementById("region").value;
+    const roomArea = document.getElementById("room_area").value;
+
+    const checks = document.querySelectorAll(".style_check");
+    const styles = [];
+    for (let i = 0; i < checks.length; i++) {
+        if (checks[i].checked) {
+            styles.push(checks[i].value);
+        }
+    }
 
     uploadError.innerText = "";
 
@@ -109,11 +117,22 @@ submitBtn.addEventListener("click", () => {
         return;
     }
 
+    if (styles.length == 0) {
+        uploadError.innerText = "please pick at least one style";
+        return;
+    }
+
+    if (styles.length > 2) {
+        uploadError.innerText = "please pick a maximum of 2 styles";
+        return;
+    }
+
     const payload = {
         room_type: roomType,
-        style_pref: stylePref,
+        style_pref: styles.join(","),
         budget: budget,
         region: region,
+        room_area: roomArea,
         dominant_colors: extractedColors.join(",")
     };
 

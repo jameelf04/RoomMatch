@@ -31,7 +31,9 @@ $roomType = $session["room_type"];
 $stylePref = $session["style_pref"];
 $budget = $session["budget"];
 $region = $session["region"];
+$roomArea = $session["room_area"];
 $roomColors = explode(",", $session["dominant_colors"]);
+$styleList = explode(",", $stylePref);
 
 function hexToRgb($hex) {
     $hex = str_replace("#", "", $hex);
@@ -54,6 +56,9 @@ for ($i = 0; $i < count($roomColors); $i++) {
 }
 
 $sql2 = "SELECT * FROM furniture_items WHERE room_type = '$roomType' AND price <= '$budget'";
+if ($roomArea > 0) {
+    $sql2 = $sql2 . " AND min_room_area <= '$roomArea'";
+}
 $result2 = mysqli_query($conn, $sql2);
 
 $items = array();
@@ -75,11 +80,11 @@ while ($row = mysqli_fetch_assoc($result2)) {
         $colorScore = 0;
     }
 
-    $styleScore = 0;
-    if ($row["style"] == $stylePref) {
-        $styleScore = 1;
-    } else {
-        $styleScore = 0.3;
+    $styleScore = 0.3;
+    for ($k = 0; $k < count($styleList); $k++) {
+        if ($row["style"] == $styleList[$k]) {
+            $styleScore = 1;
+        }
     }
 
     $priceScore = 1 - ($row["price"] / $budget);
@@ -100,7 +105,7 @@ while ($row = mysqli_fetch_assoc($result2)) {
     $reasons = array();
 
     if ($styleScore == 1) {
-        $reasons[] = "matches your " . $stylePref . " style";
+        $reasons[] = "matches your " . $row["style"] . " style";
     }
     if ($colorScore > 0.7) {
         $reasons[] = "complements your room's colors";
@@ -110,6 +115,9 @@ while ($row = mysqli_fetch_assoc($result2)) {
     }
     if ($regionScore == 1) {
         $reasons[] = "is available in your region";
+    }
+    if ($roomArea > 0) {
+        $reasons[] = "fits your " . $roomArea . " m2 room";
     }
 
     if (count($reasons) == 0) {

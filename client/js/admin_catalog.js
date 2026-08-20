@@ -52,6 +52,7 @@ const loadItems = () => {
                 document.getElementById("f_store").value = item.store_name;
                 document.getElementById("f_image").value = item.image_url;
                 document.getElementById("f_purchase").value = item.purchase_url;
+                document.getElementById("f_area").value = item.min_room_area;
 
                 formTitle.innerText = "Edit item";
                 cancelBtn.style.display = "inline-block";
@@ -88,6 +89,7 @@ const resetForm = () => {
     document.getElementById("f_store").value = "";
     document.getElementById("f_image").value = "";
     document.getElementById("f_purchase").value = "";
+    document.getElementById("f_area").value = "";
     formTitle.innerText = "Add new item";
     formError.innerText = "";
     cancelBtn.style.display = "none";
@@ -121,6 +123,7 @@ saveBtn.addEventListener("click", () => {
         store_name: store,
         image_url: document.getElementById("f_image").value,
         purchase_url: document.getElementById("f_purchase").value
+        min_room_area: document.getElementById("f_area").value
     };
 
     fetch("../../server/php/admin_save_item.php", {

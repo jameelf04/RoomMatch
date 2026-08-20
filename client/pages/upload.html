@@ -53,19 +53,24 @@
 </div>
 
 <div class="field">
-<label for="style_pref">Style</label>
-<select name="style_pref" id="style_pref">
-<option value="modern">Modern</option>
-<option value="classic">Classic</option>
-<option value="scandinavian">Scandinavian</option>
-<option value="boho">Boho</option>
-<option value="industrial">Industrial</option>
-</select>
+<label>Style (pick up to 2)</label>
+<div class="style_checks">
+<label class="check_item"><input type="checkbox" value="modern" class="style_check" /> Modern</label>
+<label class="check_item"><input type="checkbox" value="classic" class="style_check" /> Classic</label>
+<label class="check_item"><input type="checkbox" value="scandinavian" class="style_check" /> Scandinavian</label>
+<label class="check_item"><input type="checkbox" value="boho" class="style_check" /> Boho</label>
+<label class="check_item"><input type="checkbox" value="industrial" class="style_check" /> Industrial</label>
+</div>
 </div>
 
 <div class="field">
 <label for="budget">Budget (JOD)</label>
 <input type="number" name="budget" id="budget" placeholder="e.g. 500" />
+</div>
+
+<div class="field">
+<label for="room_area">Room Size (m²) — optional</label>
+<input type="number" name="room_area" id="room_area" placeholder="e.g. 20" />
 </div>
 
 <div class="field">

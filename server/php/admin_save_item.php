@@ -28,6 +28,10 @@ $store = mysqli_real_escape_string($conn, $input["store_name"]);
 $region = mysqli_real_escape_string($conn, $input["region"]);
 $imageUrl = mysqli_real_escape_string($conn, $input["image_url"]);
 $purchaseUrl = mysqli_real_escape_string($conn, $input["purchase_url"]);
+$minArea = mysqli_real_escape_string($conn, $input["min_room_area"]);
+if ($minArea == "") {
+    $minArea = 0;
+}
 
 if ($input["item_id"] == "" || $input["item_id"] == null) {
     $sql = "INSERT INTO furniture_items (name, category, room_type, style, color_hex, price, store_name, region, image_url, purchase_url) VALUES ('$name', '$category', '$roomType', '$style', '$colorHex', '$price', '$store', '$region', '$imageUrl', '$purchaseUrl')";

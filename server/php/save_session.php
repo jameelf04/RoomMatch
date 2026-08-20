@@ -25,9 +25,12 @@ $stylePref = mysqli_real_escape_string($conn, $input["style_pref"]);
 $budget = mysqli_real_escape_string($conn, $input["budget"]);
 $region = mysqli_real_escape_string($conn, $input["region"]);
 $colors = mysqli_real_escape_string($conn, $input["dominant_colors"]);
+$roomArea = mysqli_real_escape_string($conn, $input["room_area"]);
+if ($roomArea == "") {
+    $roomArea = 0;
+}
 
-$sql = "INSERT INTO room_sessions (user_id, room_type, dominant_colors, style_pref, budget, region) VALUES ('$userId', '$roomType', '$colors', '$stylePref', '$budget', '$region')";
-
+$sql = "INSERT INTO room_sessions (user_id, room_type, dominant_colors, style_pref, budget, region, room_area) VALUES ('$userId', '$roomType', '$colors', '$stylePref', '$budget', '$region', '$roomArea')";
 if (mysqli_query($conn, $sql)) {
     $sessionId = mysqli_insert_id($conn);
     echo json_encode(array("session_id" => $sessionId));
