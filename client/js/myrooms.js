@@ -17,7 +17,13 @@ fetch("../../server/php/get_sessions.php", {
     }
 
     if (sessions.length == 0) {
-        sessionsGrid.innerHTML = "<p>You have no saved rooms yet. Upload your first room to get started.</p>";
+        sessionsGrid.innerHTML = `
+            <div class="empty_card">
+                <h3>No rooms yet</h3>
+                <p>Upload your first room photo to get matched furniture.</p>
+                <a href="upload.html" class="cta_button">Upload a Room</a>
+            </div>
+        `;
         return;
     }
 
@@ -46,5 +52,10 @@ fetch("../../server/php/get_sessions.php", {
     }
 })
 .catch(() => {
-    sessionsGrid.innerHTML = "<p>something went wrong loading your rooms</p>";
+    sessionsGrid.innerHTML = `
+        <div class="empty_card">
+            <h3>Something went wrong</h3>
+            <p>We couldn't load your rooms right now.</p>
+        </div>
+    `;
 });

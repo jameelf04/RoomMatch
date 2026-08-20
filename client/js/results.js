@@ -45,7 +45,14 @@ modal.addEventListener("click", (e) => {
 });
 
 if (!sessionId) {
-    summary.innerText = "no session found, please upload a room first";
+    summary.innerText = "";
+    grid.innerHTML = `
+        <div class="empty_card">
+            <h3>No session found</h3>
+            <p>Upload a room photo first to get your matches.</p>
+            <a href="upload.html" class="cta_button">Go to Upload</a>
+        </div>
+    `;
 } else {
     fetch("../../server/php/get_matches.php?session=" + sessionId, {
         headers: {
@@ -60,12 +67,26 @@ if (!sessionId) {
         }
 
         if (items.error) {
-            summary.innerText = "something went wrong loading your results";
+            summary.innerText = "";
+            grid.innerHTML = `
+                <div class="empty_card">
+                    <h3>Something went wrong</h3>
+                    <p>We couldn't load your results. Try uploading your room again.</p>
+                    <a href="upload.html" class="cta_button">Back to Upload</a>
+                </div>
+            `;
             return;
         }
 
         if (items.length == 0) {
-            summary.innerText = "no matching furniture found for your budget and preferences";
+            summary.innerText = "";
+            grid.innerHTML = `
+                <div class="empty_card">
+                    <h3>No matches found</h3>
+                    <p>Nothing in the catalog fits your current budget and preferences. Try raising your budget or picking a different style.</p>
+                    <a href="upload.html" class="cta_button">Try Again</a>
+                </div>
+            `;
             return;
         }
 
@@ -103,6 +124,13 @@ if (!sessionId) {
         }
     })
     .catch(() => {
-        summary.innerText = "something went wrong loading your results";
+        summary.innerText = "";
+        grid.innerHTML = `
+            <div class="empty_card">
+                <h3>Something went wrong</h3>
+                <p>We couldn't load your results. Try uploading your room again.</p>
+                <a href="upload.html" class="cta_button">Back to Upload</a>
+            </div>
+        `;
     });
 }

@@ -5,6 +5,7 @@ if (!localStorage.getItem("token")) {
 const fileInput = document.getElementById("room_photo");
 const previewArea = document.getElementById("preview_area");
 const swatchArea = document.getElementById("color_swatches");
+const uploadError = document.getElementById("upload_error");
 let extractedColors = [];
 
 const rgbToHex = (r, g, b) => {
@@ -71,6 +72,8 @@ fileInput.addEventListener("change", () => {
         return;
     }
 
+    uploadError.innerText = "";
+
     const reader = new FileReader();
     reader.onload = (e) => {
         const img = new Image();
@@ -94,13 +97,15 @@ submitBtn.addEventListener("click", () => {
     const budget = document.getElementById("budget").value;
     const region = document.getElementById("region").value;
 
-    if (budget == "" || budget <= 0) {
-        alert("please enter a valid budget");
+    uploadError.innerText = "";
+
+    if (extractedColors.length == 0) {
+        uploadError.innerText = "please upload a room photo first";
         return;
     }
 
-    if (extractedColors.length == 0) {
-        alert("please upload a room photo first");
+    if (budget == "" || budget <= 0) {
+        uploadError.innerText = "please enter a valid budget";
         return;
     }
 
@@ -125,13 +130,12 @@ submitBtn.addEventListener("click", () => {
         if (data.session_id) {
             window.location.href = "results.html?session=" + data.session_id;
         } else if (data.error == "unauthorized") {
-            alert("please log in first");
             window.location.href = "login.html";
         } else {
-            alert("something went wrong saving your session");
+            uploadError.innerText = "something went wrong saving your session";
         }
     })
     .catch(() => {
-        alert("something went wrong saving your session");
+        uploadError.innerText = "something went wrong saving your session";
     });
 });
