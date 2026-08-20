@@ -1,6 +1,6 @@
 <?php
-session_start();
 include "connection.php";
+include "jwt.php";
 
 $input = json_decode(file_get_contents("php://input"), true);
 
@@ -22,9 +22,8 @@ $sql = "INSERT INTO users (username, email, password_hash) VALUES ('$username', 
 
 if (mysqli_query($conn, $sql)) {
     $userId = mysqli_insert_id($conn);
-    $_SESSION["user_id"] = $userId;
-    $_SESSION["username"] = $username;
-    echo json_encode(array("success" => true));
+    $token = create_token($userId, $username);
+    echo json_encode(array("success" => true, "token" => $token, "username" => $username));
 } else {
     echo json_encode(array("error" => mysqli_error($conn)));
 }

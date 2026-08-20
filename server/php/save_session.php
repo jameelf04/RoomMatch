@@ -1,5 +1,22 @@
 <?php
 include "connection.php";
+include "jwt.php";
+
+$headers = getallheaders();
+$auth = "";
+if (isset($headers["Authorization"])) {
+    $auth = $headers["Authorization"];
+}
+
+$token = str_replace("Bearer ", "", $auth);
+$payload = verify_token($token);
+
+if (!$payload) {
+    echo json_encode(array("error" => "unauthorized"));
+    exit;
+}
+
+$userId = $payload["user_id"];
 
 $input = json_decode(file_get_contents("php://input"), true);
 
@@ -9,7 +26,7 @@ $budget = mysqli_real_escape_string($conn, $input["budget"]);
 $region = mysqli_real_escape_string($conn, $input["region"]);
 $colors = mysqli_real_escape_string($conn, $input["dominant_colors"]);
 
-$sql = "INSERT INTO room_sessions (room_type, dominant_colors, style_pref, budget, region) VALUES ('$roomType', '$colors', '$stylePref', '$budget', '$region')";
+$sql = "INSERT INTO room_sessions (user_id, room_type, dominant_colors, style_pref, budget, region) VALUES ('$userId', '$roomType', '$colors', '$stylePref', '$budget', '$region')";
 
 if (mysqli_query($conn, $sql)) {
     $sessionId = mysqli_insert_id($conn);

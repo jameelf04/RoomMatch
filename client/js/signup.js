@@ -25,6 +25,8 @@ signupBtn.addEventListener("click", () => {
     .then((res) => res.json())
     .then((data) => {
         if (data.success) {
+            localStorage.setItem("token", data.token);
+            localStorage.setItem("username", data.username);
             window.location.href = "upload.html";
         } else {
             signupError.innerText = data.error;
