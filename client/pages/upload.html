@@ -1,51 +1,48 @@
 <!DOCTYPE HTML>
-<html>
+<html lang="en">
 <head>
-<title>RoomMatch - Upload</title>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-<link rel="stylesheet" href="../theme/css/main.css" />
-<noscript><link rel="stylesheet" href="../theme/css/noscript.css" /></noscript>
+<title>RoomMatch - Upload</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css" />
 </head>
-<body class="is-preload">
+<body>
 
-<div id="wrapper" class="fade-in">
-
-<header id="header">
-<a href="../../index.html" class="logo"><strong>Room</strong>Match</a>
-</header>
-
-<nav id="nav">
-<ul class="links">
-<li><a href="../../index.html">Home</a></li>
-<li class="active"><a href="upload.html">Upload</a></li>
-<li><a href="results.html">Results</a></li>
-<li><a href="login.html">Log In</a></li>
-</ul>
+<header class="site_header">
+<a href="../../index.html" class="logo">RoomMatch</a>
+<nav class="main_nav">
+<a href="../../index.html">Home</a>
+<a href="upload.html" class="active">Upload</a>
+<a href="results.html">Results</a>
 </nav>
-
-<div id="main">
-
-<article class="post featured">
-<header class="major">
-<h2>Upload Your Room</h2>
-<p>Get furniture picks matched to your style, colors, and budget</p>
+<nav class="auth_nav">
+<a href="login.html">Log In</a>
+</nav>
 </header>
 
+<div class="page_band">
+<h1>Upload your room</h1>
+<p>A single photo gets you matched furniture in under a minute.</p>
+</div>
+
+<div class="form_wrap">
+<div class="form_card">
+<h2>Room photo</h2>
+<div class="upload_dropzone">
 <input type="file" id="room_photo" accept="image/*" />
+</div>
 <div id="preview_area"></div>
 <div id="color_swatches"></div>
+</div>
+</div>
 
-</article>
-
-<section class="posts">
-<article>
-<header>
-<h2>Set Your Preferences</h2>
-</header>
+<div class="form_wrap">
+<div class="form_card">
+<h2>Your preferences</h2>
 
 <form id="pref_form">
-<div class="fields">
 <div class="field">
 <label for="room_type">Room Type</label>
 <select name="room_type" id="room_type">
@@ -78,59 +75,41 @@
 <option value="international">International</option>
 </select>
 </div>
-</div>
 
-<ul class="actions">
-<li><input type="button" id="submit_btn" value="Find My Furniture" /></li>
-</ul>
+<button type="button" id="submit_btn" class="cta_button">Find My Furniture</button>
 </form>
-
-</article>
-</section>
-
+</div>
 </div>
 
-<footer id="footer">
-<section>
-<h3>About RoomMatch</h3>
-<p>RoomMatch analyzes your room's colors and matches you with furniture that fits your style, budget, and region — built as a bootcamp precursor to the VisionSpace graduation project.</p>
-</section>
-<section class="split contact">
-<section class="alt">
-<h3>Project</h3>
-<p>JDS / Maaloomatiia Bootcamp<br />
-Final Project 2026</p>
-</section>
-<section>
-<h3>Built By</h3>
+<footer class="site_footer">
+<div class="divider_strip">
+<span style="background:#A9793A"></span>
+<span style="background:#7C8B78"></span>
+<span style="background:#C9B79C"></span>
+<span style="background:#4A5A48"></span>
+<span style="background:#23211D"></span>
+</div>
+<div class="footer_grid">
+<div>
+<h4>RoomMatch</h4>
+<p>A bootcamp precursor to the VisionSpace graduation project.</p>
+</div>
+<div>
+<h4>Project</h4>
+<p>JDS / Maaloomatiia Bootcamp<br />Final Project 2026</p>
+</div>
+<div>
+<h4>Built by</h4>
 <p>Jameel Fakhoury</p>
-</section>
-<section>
-<h3>Stack</h3>
-<p>PHP, MySQL, JS</p>
-</section>
-<section>
-<h3>Links</h3>
-<ul class="icons alt">
-<li><a href="https://github.com/jameelf04/RoomMatch" class="icon brands alt fa-github"><span class="label">GitHub</span></a></li>
-</ul>
-</section>
-</section>
+</div>
+<div>
+<h4>Code</h4>
+<a href="https://github.com/jameelf04/RoomMatch" target="_blank">GitHub</a>
+</div>
+</div>
+<p class="copyright">&copy; RoomMatch 2026</p>
 </footer>
 
-<div id="copyright">
-<ul><li>&copy; RoomMatch 2026</li><li>Bootcamp Final Project</li></ul>
-</div>
-
-</div>
-
-<script src="../theme/js/jquery.min.js"></script>
-<script src="../theme/js/jquery.scrollex.min.js"></script>
-<script src="../theme/js/jquery.scrolly.min.js"></script>
-<script src="../theme/js/browser.min.js"></script>
-<script src="../theme/js/breakpoints.min.js"></script>
-<script src="../theme/js/util.js"></script>
-<script src="../theme/js/main.js"></script>
 <script src="../js/script.js"></script>
 </body>
 </html>

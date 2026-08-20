@@ -23,23 +23,20 @@ if (!sessionId) {
 
         for (let i = 0; i < items.length; i++) {
             const item = items[i];
-            const article = document.createElement("article");
+            const card = document.createElement("div");
+            card.className = "result_card";
 
             const matchPercent = Math.round(item.match_score * 100);
 
-            article.innerHTML = `
-                <header>
-                    <h3>${item.name}</h3>
-                </header>
-                <p>${item.price} JOD &mdash; ${item.store_name}</p>
-                <p>${matchPercent}% match</p>
-                <p>${item.explanation}</p>
-                <ul class="actions">
-                    <li><a href="${item.purchase_url}" target="_blank" class="button">View & Buy</a></li>
-                </ul>
+            card.innerHTML = `
+                <span class="match_badge">${matchPercent}% match</span>
+                <h3>${item.name}</h3>
+                <p class="price_line">${item.price} JOD &mdash; ${item.store_name}</p>
+                <p class="explanation">${item.explanation}</p>
+                <a href="${item.purchase_url}" target="_blank" class="buy_link">View &amp; Buy &rarr;</a>
             `;
 
-            grid.appendChild(article);
+            grid.appendChild(card);
         }
     })
     .catch(() => {

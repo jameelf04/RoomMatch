@@ -23,7 +23,7 @@ loginBtn.addEventListener("click", () => {
     .then((res) => res.json())
     .then((data) => {
         if (data.success) {
-            window.location.href = "../../index.html";
+            window.location.href = "upload.html";
         } else {
             loginError.innerText = data.error;
         }

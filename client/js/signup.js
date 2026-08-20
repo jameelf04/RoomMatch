@@ -25,7 +25,7 @@ signupBtn.addEventListener("click", () => {
     .then((res) => res.json())
     .then((data) => {
         if (data.success) {
-            window.location.href = "../../index.html";
+            window.location.href = "upload.html";
         } else {
             signupError.innerText = data.error;
         }

@@ -1,112 +1,111 @@
 <!DOCTYPE HTML>
-<html>
+<html lang="en">
 <head>
-<title>RoomMatch</title>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-<link rel="stylesheet" href="client/theme/css/main.css" />
-<noscript><link rel="stylesheet" href="client/theme/css/noscript.css" /></noscript>
+<title>RoomMatch</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="client/css/style.css" />
 </head>
-<body class="is-preload landing">
+<body>
 
-<div id="wrapper" class="fade-in">
-
-<div id="intro">
-<h1>Design Your Room<br />with RoomMatch</h1>
-<p>Upload a photo of your empty room and get furniture picks matched<br />
-to your style, colors, budget, and region.</p>
-<ul class="actions">
-<li><a href="client/pages/upload.html" class="button icon solid solo fa-arrow-down">Start Designing</a></li>
-</ul>
+<header class="site_header">
+<a href="index.html" class="logo">RoomMatch</a>
+<div class="swatch_strip small">
+<span style="background:#A9793A"></span>
+<span style="background:#7C8B78"></span>
+<span style="background:#C9B79C"></span>
+<span style="background:#4A5A48"></span>
+<span style="background:#23211D"></span>
 </div>
-
-<header id="header">
-<a href="index.html" class="logo"><strong>Room</strong>Match</a>
-</header>
-
-<nav id="nav">
-<ul class="links">
-<li class="active"><a href="index.html">Home</a></li>
-<li><a href="client/pages/upload.html">Upload</a></li>
-<li><a href="client/pages/results.html">Results</a></li>
-<li><a href="client/pages/login.html">Log In</a></li>
-</ul>
+<nav class="auth_nav">
+<a href="client/pages/login.html">Log In</a>
+<a href="client/pages/signup.html" class="filled">Sign Up</a>
 </nav>
-
-<div id="main">
-
-<article class="post featured">
-<header class="major">
-<h2>How It Works</h2>
-<p>Three simple steps to furnish your space</p>
 </header>
-</article>
 
-<section class="posts">
-<article>
-<header>
-<h2>1. Upload Your Room</h2>
-</header>
-<p>Take a photo of your empty room and upload it. We pull out the dominant colors automatically.</p>
-</article>
-
-<article>
-<header>
-<h2>2. Set Preferences</h2>
-</header>
-<p>Tell us your room type, style, budget, and region so results actually fit your needs.</p>
-</article>
-
-<article>
-<header>
-<h2>3. Get Matched</h2>
-</header>
-<p>See ranked furniture picks with a clear explanation for why each one was recommended.</p>
-</article>
+<section class="hero">
+<div class="hero_text">
+<p class="eyebrow">Bootcamp Final Project</p>
+<h1>Furnish an empty room with the colors it already has</h1>
+<p class="hero_sub">Upload a photo of your room. RoomMatch reads its dominant colors and matches real furniture to your style, budget, and region, with a plain reason for every pick.</p>
+<a href="client/pages/login.html" class="cta_button">Start Designing</a>
+</div>
+<div class="hero_swatches">
+<span style="background:#23211D"></span>
+<span style="background:#4A5A48"></span>
+<span style="background:#7C8B78"></span>
+<span style="background:#C9B79C"></span>
+<span style="background:#A9793A"></span>
+</div>
 </section>
 
+<section class="about">
+<h2>How a room becomes a shopping list</h2>
+<p>RoomMatch pulls five dominant colors from your photo, compares them against a real furniture catalog by color, style, and price, and ranks what fits. Nothing is guessed, every match comes with the exact reason it was chosen.</p>
+</section>
+
+<div class="divider_strip">
+<span style="background:#A9793A"></span>
+<span style="background:#7C8B78"></span>
+<span style="background:#C9B79C"></span>
+<span style="background:#4A5A48"></span>
+<span style="background:#23211D"></span>
 </div>
 
-<footer id="footer">
-<section>
-<h3>About RoomMatch</h3>
-<p>RoomMatch analyzes your room's colors and matches you with furniture that fits your style, budget, and region — built as a bootcamp precursor to the VisionSpace graduation project.</p>
+<section class="steps">
+<div class="step">
+<span class="step_chip" style="background:#A9793A"></span>
+<h3>Upload your room</h3>
+<p>A single photo of the empty space is enough. Colors are extracted automatically.</p>
+</div>
+<div class="step">
+<span class="step_chip" style="background:#7C8B78"></span>
+<h3>Set your preferences</h3>
+<p>Room type, style, budget, and region, four fields, thirty seconds.</p>
+</div>
+<div class="step">
+<span class="step_chip" style="background:#23211D"></span>
+<h3>Get matched</h3>
+<p>Ranked furniture with a plain language reason behind every recommendation.</p>
+</div>
 </section>
-<section class="split contact">
-<section class="alt">
-<h3>Project</h3>
-<p>JDS / Maaloomatiia Bootcamp<br />
-Final Project 2026</p>
+
+<section class="cta_band">
+<h2>Your room already has a palette.</h2>
+<p>Let's find furniture that speaks it.</p>
+<a href="client/pages/login.html" class="cta_button">Start Designing</a>
 </section>
-<section>
-<h3>Built By</h3>
+
+<footer class="site_footer">
+<div class="divider_strip">
+<span style="background:#A9793A"></span>
+<span style="background:#7C8B78"></span>
+<span style="background:#C9B79C"></span>
+<span style="background:#4A5A48"></span>
+<span style="background:#23211D"></span>
+</div>
+<div class="footer_grid">
+<div>
+<h4>RoomMatch</h4>
+<p>A bootcamp precursor to the VisionSpace graduation project.</p>
+</div>
+<div>
+<h4>Project</h4>
+<p>JDS / Maaloomatiia Bootcamp<br />Final Project 2026</p>
+</div>
+<div>
+<h4>Built by</h4>
 <p>Jameel Fakhoury</p>
-</section>
-<section>
-<h3>Stack</h3>
-<p>PHP, MySQL, JS</p>
-</section>
-<section>
-<h3>Links</h3>
-<ul class="icons alt">
-<li><a href="https://github.com/jameelf04/RoomMatch" class="icon brands alt fa-github"><span class="label">GitHub</span></a></li>
-</ul>
-</section>
-</section>
+</div>
+<div>
+<h4>Code</h4>
+<a href="https://github.com/jameelf04/RoomMatch" target="_blank">GitHub</a>
+</div>
+</div>
+<p class="copyright">&copy; RoomMatch 2026</p>
 </footer>
 
-<div id="copyright">
-<ul><li>&copy; RoomMatch 2026</li><li>Bootcamp Final Project</li></ul>
-</div>
-
-</div>
-
-<script src="client/theme/js/jquery.min.js"></script>
-<script src="client/theme/js/jquery.scrollex.min.js"></script>
-<script src="client/theme/js/jquery.scrolly.min.js"></script>
-<script src="client/theme/js/browser.min.js"></script>
-<script src="client/theme/js/breakpoints.min.js"></script>
-<script src="client/theme/js/util.js"></script>
-<script src="client/theme/js/main.js"></script>
 </body>
 </html>
