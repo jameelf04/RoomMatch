@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>RoomMatch - My Rooms</title>
+<title>RoomMatch - Catalog</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -15,9 +15,9 @@
 <nav class="main_nav">
 <a href="../../index.html">Home</a>
 <a href="upload.html">Upload</a>
-<a href="myrooms.html" class="active">My Rooms</a>
+<a href="catalog.html" class="active">Catalog</a>
+<a href="myrooms.html">My Rooms</a>
 <a href="favorites.html">Favorites</a>
-<a href="catalog.html">Catalog</a>
 </nav>
 <nav class="auth_nav">
 <a href="login.html">Log In</a>
@@ -25,11 +25,20 @@
 </header>
 
 <div class="page_band">
-<h1>My rooms</h1>
-<p>Your previous room uploads and their matches.</p>
+<h1>Browse the catalog</h1>
+<p>Every piece RoomMatch can recommend, across both room types.</p>
 </div>
 
-<div class="results_grid" id="sessions_grid"></div>
+<div class="filter_bar">
+<div class="filter_chips" id="filter_chips"></div>
+<select id="sort_select">
+<option value="name">Sort: Name</option>
+<option value="price_low">Sort: Price Low to High</option>
+<option value="price_high">Sort: Price High to Low</option>
+</select>
+</div>
+
+<div class="results_grid" id="catalog_grid"></div>
 
 <footer class="site_footer">
 <div class="divider_strip">
@@ -61,6 +70,6 @@
 </footer>
 
 <script src="../js/auth_nav.js"></script>
-<script src="../js/myrooms.js"></script>
+<script src="../js/catalog.js"></script>
 </body>
 </html>
