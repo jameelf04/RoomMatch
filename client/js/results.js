@@ -6,6 +6,43 @@ const params = new URLSearchParams(window.location.search);
 const sessionId = params.get("session");
 const grid = document.getElementById("results_grid");
 const summary = document.getElementById("result_summary");
+const modal = document.getElementById("item_modal");
+const modalClose = document.getElementById("modal_close");
+
+const openModal = (item) => {
+    document.getElementById("modal_img").src = item.image_url;
+    document.getElementById("modal_name").innerText = item.name;
+    document.getElementById("modal_price").innerText = item.price + " JOD — " + item.store_name + " — " + item.region;
+    document.getElementById("modal_explanation").innerText = item.explanation;
+
+    document.getElementById("bar_style").style.width = (item.style_score * 100) + "%";
+    document.getElementById("bar_color").style.width = (item.color_score * 100) + "%";
+    document.getElementById("bar_price").style.width = (item.price_score * 100) + "%";
+
+    document.getElementById("val_style").innerText = Math.round(item.style_score * 100) + "%";
+    document.getElementById("val_color").innerText = Math.round(item.color_score * 100) + "%";
+    document.getElementById("val_price").innerText = Math.round(item.price_score * 100) + "%";
+
+    const buyBtn = document.getElementById("modal_buy");
+    if (item.purchase_url != "" && item.purchase_url != null) {
+        buyBtn.href = item.purchase_url;
+        buyBtn.style.display = "inline-block";
+    } else {
+        buyBtn.style.display = "none";
+    }
+
+    modal.classList.add("open");
+};
+
+modalClose.addEventListener("click", () => {
+    modal.classList.remove("open");
+});
+
+modal.addEventListener("click", (e) => {
+    if (e.target == modal) {
+        modal.classList.remove("open");
+    }
+});
 
 if (!sessionId) {
     summary.innerText = "no session found, please upload a room first";
@@ -38,6 +75,7 @@ if (!sessionId) {
             const item = items[i];
             const card = document.createElement("div");
             card.className = "result_card";
+            card.style.cursor = "pointer";
 
             const matchPercent = Math.round(item.match_score * 100);
 
@@ -54,6 +92,12 @@ if (!sessionId) {
                 <p class="explanation">${item.explanation}</p>
                 ${buyLink}
             `;
+
+            card.addEventListener("click", (e) => {
+                if (e.target.tagName != "A") {
+                    openModal(item);
+                }
+            });
 
             grid.appendChild(card);
         }

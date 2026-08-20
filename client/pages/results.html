@@ -29,6 +29,32 @@
 
 <div class="results_grid" id="results_grid"></div>
 
+<div class="modal_overlay" id="item_modal">
+<div class="modal_box">
+<button class="modal_close" id="modal_close">&times;</button>
+<img id="modal_img" class="card_img" src="" alt="" />
+<h3 id="modal_name"></h3>
+<p class="price_line" id="modal_price"></p>
+<p class="explanation" id="modal_explanation"></p>
+<div class="score_row">
+<span>Style match</span>
+<div class="score_bar"><div class="score_fill" id="bar_style"></div></div>
+<span id="val_style"></span>
+</div>
+<div class="score_row">
+<span>Color match</span>
+<div class="score_bar"><div class="score_fill" id="bar_color"></div></div>
+<span id="val_color"></span>
+</div>
+<div class="score_row">
+<span>Price fit</span>
+<div class="score_bar"><div class="score_fill" id="bar_price"></div></div>
+<span id="val_price"></span>
+</div>
+<a id="modal_buy" href="" target="_blank" class="buy_link">View &amp; Buy &rarr;</a>
+</div>
+</div>
+
 <footer class="site_footer">
 <div class="divider_strip">
 <span style="background:#A9793A"></span>
@@ -57,6 +83,7 @@
 </div>
 <p class="copyright">&copy; RoomMatch 2026</p>
 </footer>
+
 <script src="../js/auth_nav.js"></script>
 <script src="../js/results.js"></script>
 </body>
