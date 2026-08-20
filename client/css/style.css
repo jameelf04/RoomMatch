@@ -483,3 +483,8 @@ a {
         grid-template-columns: 1fr;
     }
 }
+
+.nav_user {
+    color: #C9C6BD;
+    font-size: 0.85rem;
+}   
