@@ -136,6 +136,24 @@ usort($items, function($a, $b) {
 
 $topItems = array_slice($items, 0, 9);
 
+$checkSql = "SELECT * FROM match_results WHERE session_id = '$sessionId'";
+$checkResult = mysqli_query($conn, $checkSql);
+
+if (mysqli_num_rows($checkResult) == 0) {
+    for ($i = 0; $i < count($topItems); $i++) {
+        $it = $topItems[$i];
+        $itemId = $it["item_id"];
+        $ms = $it["match_score"];
+        $ss = $it["style_score"];
+        $cs = $it["color_score"];
+        $ps = $it["price_score"];
+        $ex = mysqli_real_escape_string($conn, $it["explanation"]);
+
+        $insertSql = "INSERT INTO match_results (session_id, item_id, match_score, style_score, color_score, price_score, explanation) VALUES ('$sessionId', '$itemId', '$ms', '$ss', '$cs', '$ps', '$ex')";
+        mysqli_query($conn, $insertSql);
+    }
+}
+
 echo json_encode($topItems);
 
 mysqli_close($conn);
