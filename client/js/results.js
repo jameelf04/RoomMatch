@@ -1,3 +1,7 @@
+if (!localStorage.getItem("token")) {
+    window.location.href = "login.html";
+}
+
 const params = new URLSearchParams(window.location.search);
 const sessionId = params.get("session");
 const grid = document.getElementById("results_grid");
@@ -6,9 +10,18 @@ const summary = document.getElementById("result_summary");
 if (!sessionId) {
     summary.innerText = "no session found, please upload a room first";
 } else {
-    fetch("../../server/php/get_matches.php?session=" + sessionId)
+    fetch("../../server/php/get_matches.php?session=" + sessionId, {
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        }
+    })
     .then((res) => res.json())
     .then((items) => {
+        if (items.error == "unauthorized") {
+            window.location.href = "login.html";
+            return;
+        }
+
         if (items.error) {
             summary.innerText = "something went wrong loading your results";
             return;

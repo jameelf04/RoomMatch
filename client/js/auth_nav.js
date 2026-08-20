@@ -27,3 +27,11 @@ if (token) {
         <a href="${pagePrefix}signup.html" class="filled">Sign Up</a>
     `;
 }
+
+const startBtns = document.querySelectorAll(".start_btn");
+
+for (let i = 0; i < startBtns.length; i++) {
+    if (token) {
+        startBtns[i].href = "client/pages/upload.html";
+    }
+}

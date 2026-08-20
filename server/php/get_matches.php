@@ -1,5 +1,20 @@
 <?php
 include "connection.php";
+include "jwt.php";
+
+$headers = getallheaders();
+$auth = "";
+if (isset($headers["Authorization"])) {
+    $auth = $headers["Authorization"];
+}
+
+$token = str_replace("Bearer ", "", $auth);
+$payload = verify_token($token);
+
+if (!$payload) {
+    echo json_encode(array("error" => "unauthorized"));
+    exit;
+}
 
 $sessionId = $_GET["session"];
 
@@ -104,6 +119,9 @@ while ($row = mysqli_fetch_assoc($result2)) {
     $explanation = $explanation . implode(", ", $reasons);
 
     $row["match_score"] = round($finalScore, 4);
+    $row["style_score"] = round($styleScore, 4);
+    $row["color_score"] = round($colorScore, 4);
+    $row["price_score"] = round($priceScore, 4);
     $row["explanation"] = $explanation;
 
     $items[] = $row;
