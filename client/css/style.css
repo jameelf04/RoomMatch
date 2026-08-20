@@ -856,3 +856,42 @@ input[type="color"] {
     accent-color: #A9793A;
     cursor: pointer;
 }
+
+@media print {
+    .site_header, .site_footer, .filter_bar, .fav_btn, .buy_link, .no_print, .modal_overlay {
+        display: none !important;
+    }
+
+    body {
+        background-color: #FFFFFF;
+    }
+
+    .results_grid {
+        display: block;
+        padding: 0;
+    }
+
+    .result_card {
+        page-break-inside: avoid;
+        border: 1px solid #DAD5C9;
+        margin-bottom: 16px;
+        box-shadow: none;
+    }
+
+    .card_img {
+        height: 120px;
+    }
+
+    .bundle_section {
+        page-break-after: always;
+    }
+
+    .page_band {
+        padding-top: 20px;
+        padding-bottom: 20px;
+    }
+
+    .budget_bar {
+        border: 1px solid #DAD5C9;
+    }
+}

@@ -337,3 +337,9 @@ if (sessionId) {
         `;
     });
 }
+
+const exportBtn = document.getElementById("export_btn");
+
+exportBtn.addEventListener("click", () => {
+    window.print();
+});
