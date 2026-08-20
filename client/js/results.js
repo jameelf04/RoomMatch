@@ -41,13 +41,18 @@ if (!sessionId) {
 
             const matchPercent = Math.round(item.match_score * 100);
 
+            let buyLink = "";
+            if (item.purchase_url != "" && item.purchase_url != null) {
+                buyLink = `<a href="${item.purchase_url}" target="_blank" class="buy_link">View &amp; Buy &rarr;</a>`;
+            }
+
             card.innerHTML = `
                 <img src="${item.image_url}" alt="${item.name}" class="card_img" />
                 <span class="match_badge">${matchPercent}% match</span>
                 <h3>${item.name}</h3>
                 <p class="price_line">${item.price} JOD &mdash; ${item.store_name}</p>
                 <p class="explanation">${item.explanation}</p>
-                <a href="${item.purchase_url}" target="_blank" class="buy_link">View &amp; Buy &rarr;</a>
+                ${buyLink}
             `;
 
             grid.appendChild(card);
