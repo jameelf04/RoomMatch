@@ -25,7 +25,7 @@ loginBtn.addEventListener("click", () => {
         if (data.success) {
             localStorage.setItem("token", data.token);
             localStorage.setItem("username", data.username);
-            localStorage.setItem("is_admin", data.is_admin);
+            localStorage.setItem("is_admin", data.is_admin);    
             window.location.href = "upload.html";
         } else {
             loginError.innerText = data.error;

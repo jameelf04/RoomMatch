@@ -122,7 +122,7 @@ saveBtn.addEventListener("click", () => {
         region: document.getElementById("f_region").value,
         store_name: store,
         image_url: document.getElementById("f_image").value,
-        purchase_url: document.getElementById("f_purchase").value
+        purchase_url: document.getElementById("f_purchase").value,
         min_room_area: document.getElementById("f_area").value
     };
 
