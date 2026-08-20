@@ -42,6 +42,7 @@ if (!sessionId) {
             const matchPercent = Math.round(item.match_score * 100);
 
             card.innerHTML = `
+                <img src="${item.image_url}" alt="${item.name}" class="card_img" />
                 <span class="match_badge">${matchPercent}% match</span>
                 <h3>${item.name}</h3>
                 <p class="price_line">${item.price} JOD &mdash; ${item.store_name}</p>
