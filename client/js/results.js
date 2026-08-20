@@ -9,6 +9,43 @@ const summary = document.getElementById("result_summary");
 const modal = document.getElementById("item_modal");
 const modalClose = document.getElementById("modal_close");
 
+let favIds = [];
+
+fetch("../../server/php/get_favorites.php", {
+    headers: {
+        "Authorization": "Bearer " + localStorage.getItem("token")
+    }
+})
+.then((res) => res.json())
+.then((favs) => {
+    if (!favs.error) {
+        for (let i = 0; i < favs.length; i++) {
+            favIds.push(favs[i].item_id);
+        }
+    }
+});
+
+const toggleFavorite = (itemId, btn) => {
+    fetch("../../server/php/toggle_favorite.php", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        body: JSON.stringify({ item_id: itemId })
+    })
+    .then((res) => res.json())
+    .then((data) => {
+        if (data.favorited) {
+            btn.classList.add("faved");
+            btn.innerHTML = "&#10084;";
+        } else {
+            btn.classList.remove("faved");
+            btn.innerHTML = "&#9825;";
+        }
+    });
+};
+
 const openModal = (item) => {
     document.getElementById("modal_img").src = item.image_url;
     document.getElementById("modal_name").innerText = item.name;
@@ -105,8 +142,13 @@ if (!sessionId) {
                 buyLink = `<a href="${item.purchase_url}" target="_blank" class="buy_link">View &amp; Buy &rarr;</a>`;
             }
 
+            const isFaved = favIds.includes(item.item_id);
+            const heartChar = isFaved ? "&#10084;" : "&#9825;";
+            const heartClass = isFaved ? "fav_btn faved" : "fav_btn";
+
             card.innerHTML = `
                 <img src="${item.image_url}" alt="${item.name}" class="card_img" />
+                <button class="${heartClass}">${heartChar}</button>
                 <span class="match_badge">${matchPercent}% match</span>
                 <h3>${item.name}</h3>
                 <p class="price_line">${item.price} JOD &mdash; ${item.store_name}</p>
@@ -114,8 +156,14 @@ if (!sessionId) {
                 ${buyLink}
             `;
 
+            const favBtn = card.querySelector(".fav_btn");
+            favBtn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                toggleFavorite(item.item_id, favBtn);
+            });
+
             card.addEventListener("click", (e) => {
-                if (e.target.tagName != "A") {
+                if (e.target.tagName != "A" && e.target.tagName != "BUTTON") {
                     openModal(item);
                 }
             });
