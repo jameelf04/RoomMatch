@@ -9,13 +9,14 @@ function base64url_decode($data) {
     return base64_decode(strtr($data, '-_', '+/'));
 }
 
-function create_token($userId, $username) {
+function create_token($userId, $username, $isAdmin) {
     global $secret;
 
     $header = json_encode(array("alg" => "HS256", "typ" => "JWT"));
     $payload = json_encode(array(
         "user_id" => $userId,
         "username" => $username,
+        "is_admin" => $isAdmin,
         "exp" => time() + 86400
     ));
 

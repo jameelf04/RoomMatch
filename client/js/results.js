@@ -8,8 +8,12 @@ const grid = document.getElementById("results_grid");
 const summary = document.getElementById("result_summary");
 const modal = document.getElementById("item_modal");
 const modalClose = document.getElementById("modal_close");
+const chipBox = document.getElementById("filter_chips");
+const sortSelect = document.getElementById("sort_select");
 
 let favIds = [];
+let allItems = [];
+let activeCategory = "all";
 
 fetch("../../server/php/get_favorites.php", {
     headers: {
@@ -81,6 +85,113 @@ modal.addEventListener("click", (e) => {
     }
 });
 
+const renderItems = () => {
+    grid.innerHTML = "";
+
+    let items = [];
+    for (let i = 0; i < allItems.length; i++) {
+        if (activeCategory == "all" || allItems[i].category == activeCategory) {
+            items.push(allItems[i]);
+        }
+    }
+
+    const sortVal = sortSelect.value;
+    items.sort((a, b) => {
+        if (sortVal == "price_low") {
+            return a.price - b.price;
+        }
+        if (sortVal == "price_high") {
+            return b.price - a.price;
+        }
+        return b.match_score - a.match_score;
+    });
+
+    if (items.length == 0) {
+        grid.innerHTML = `
+            <div class="empty_card">
+                <h3>Nothing in this category</h3>
+                <p>Try a different filter.</p>
+            </div>
+        `;
+        return;
+    }
+
+    for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        const card = document.createElement("div");
+        card.className = "result_card";
+        card.style.cursor = "pointer";
+
+        const matchPercent = Math.round(item.match_score * 100);
+
+        let buyLink = "";
+        if (item.purchase_url != "" && item.purchase_url != null) {
+            buyLink = `<a href="${item.purchase_url}" target="_blank" class="buy_link">View &amp; Buy &rarr;</a>`;
+        }
+
+        const isFaved = favIds.includes(item.item_id);
+        const heartChar = isFaved ? "&#10084;" : "&#9825;";
+        const heartClass = isFaved ? "fav_btn faved" : "fav_btn";
+
+        card.innerHTML = `
+            <img src="${item.image_url}" alt="${item.name}" class="card_img" />
+            <button class="${heartClass}">${heartChar}</button>
+            <span class="match_badge">${matchPercent}% match</span>
+            <h3>${item.name}</h3>
+            <p class="price_line">${item.price} JOD &mdash; ${item.store_name}</p>
+            <p class="explanation">${item.explanation}</p>
+            ${buyLink}
+        `;
+
+        const favBtn = card.querySelector(".fav_btn");
+        favBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            toggleFavorite(item.item_id, favBtn);
+        });
+
+        card.addEventListener("click", (e) => {
+            if (e.target.tagName != "A" && e.target.tagName != "BUTTON") {
+                openModal(item);
+            }
+        });
+
+        grid.appendChild(card);
+    }
+};
+
+const buildChips = () => {
+    const cats = [];
+    for (let i = 0; i < allItems.length; i++) {
+        if (!cats.includes(allItems[i].category)) {
+            cats.push(allItems[i].category);
+        }
+    }
+
+    let html = `<button class="chip active" data-cat="all">All</button>`;
+    for (let i = 0; i < cats.length; i++) {
+        const label = cats[i].replace("_", " ");
+        html += `<button class="chip" data-cat="${cats[i]}">${label}</button>`;
+    }
+
+    chipBox.innerHTML = html;
+
+    const chips = chipBox.querySelectorAll(".chip");
+    for (let i = 0; i < chips.length; i++) {
+        chips[i].addEventListener("click", () => {
+            for (let j = 0; j < chips.length; j++) {
+                chips[j].classList.remove("active");
+            }
+            chips[i].classList.add("active");
+            activeCategory = chips[i].dataset.cat;
+            renderItems();
+        });
+    }
+};
+
+sortSelect.addEventListener("change", () => {
+    renderItems();
+});
+
 if (!sessionId) {
     summary.innerText = "";
     grid.innerHTML = `
@@ -129,47 +240,9 @@ if (!sessionId) {
 
         summary.innerText = items.length + " items matched to your room";
 
-        for (let i = 0; i < items.length; i++) {
-            const item = items[i];
-            const card = document.createElement("div");
-            card.className = "result_card";
-            card.style.cursor = "pointer";
-
-            const matchPercent = Math.round(item.match_score * 100);
-
-            let buyLink = "";
-            if (item.purchase_url != "" && item.purchase_url != null) {
-                buyLink = `<a href="${item.purchase_url}" target="_blank" class="buy_link">View &amp; Buy &rarr;</a>`;
-            }
-
-            const isFaved = favIds.includes(item.item_id);
-            const heartChar = isFaved ? "&#10084;" : "&#9825;";
-            const heartClass = isFaved ? "fav_btn faved" : "fav_btn";
-
-            card.innerHTML = `
-                <img src="${item.image_url}" alt="${item.name}" class="card_img" />
-                <button class="${heartClass}">${heartChar}</button>
-                <span class="match_badge">${matchPercent}% match</span>
-                <h3>${item.name}</h3>
-                <p class="price_line">${item.price} JOD &mdash; ${item.store_name}</p>
-                <p class="explanation">${item.explanation}</p>
-                ${buyLink}
-            `;
-
-            const favBtn = card.querySelector(".fav_btn");
-            favBtn.addEventListener("click", (e) => {
-                e.stopPropagation();
-                toggleFavorite(item.item_id, favBtn);
-            });
-
-            card.addEventListener("click", (e) => {
-                if (e.target.tagName != "A" && e.target.tagName != "BUTTON") {
-                    openModal(item);
-                }
-            });
-
-            grid.appendChild(card);
-        }
+        allItems = items;
+        buildChips();
+        renderItems();
     })
     .catch(() => {
         summary.innerText = "";
@@ -236,7 +309,7 @@ if (sessionId) {
     .catch(() => {
         document.querySelector(".bundle_section").style.display = "none";
     });
-}   
+}
 
 const paletteBox = document.getElementById("room_palette");
 

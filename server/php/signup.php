@@ -22,8 +22,8 @@ $sql = "INSERT INTO users (username, email, password_hash) VALUES ('$username', 
 
 if (mysqli_query($conn, $sql)) {
     $userId = mysqli_insert_id($conn);
-    $token = create_token($userId, $username);
-    echo json_encode(array("success" => true, "token" => $token, "username" => $username));
+    $token = create_token($userId, $username, 0);
+    echo json_encode(array("success" => true, "token" => $token, "username" => $username, "is_admin" => 0));
 } else {
     echo json_encode(array("error" => mysqli_error($conn)));
 }

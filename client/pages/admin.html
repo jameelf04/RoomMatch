@@ -1,0 +1,88 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>RoomMatch - Admin</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+
+<header class="site_header">
+<a href="../../index.html" class="logo">RoomMatch</a>
+<nav class="main_nav">
+<a href="../../index.html">Home</a>
+<a href="upload.html">Upload</a>
+<a href="myrooms.html">My Rooms</a>
+<a href="admin.html" class="active">Admin</a>
+</nav>
+<nav class="auth_nav">
+<a href="login.html">Log In</a>
+</nav>
+</header>
+
+<div class="page_band">
+<h1>Admin dashboard</h1>
+<p>System overview and catalog management.</p>
+</div>
+
+<div class="stats_grid" id="stats_grid"></div>
+
+<div class="admin_two_col">
+<div class="form_card">
+<h2>Sessions by room type</h2>
+<div id="by_room"></div>
+</div>
+<div class="form_card">
+<h2>Sessions by style</h2>
+<div id="by_style"></div>
+</div>
+</div>
+
+<div class="admin_two_col">
+<div class="form_card">
+<h2>Most favorited items</h2>
+<div id="top_favs"></div>
+</div>
+<div class="form_card">
+<h2>Catalog</h2>
+<p style="margin-bottom: 20px; color: #5A574F;">Add, edit, or remove furniture items.</p>
+<a href="admin_catalog.html" class="cta_button">Manage Catalog</a>
+</div>
+</div>
+
+<footer class="site_footer">
+<div class="divider_strip">
+<span style="background:#A9793A"></span>
+<span style="background:#7C8B78"></span>
+<span style="background:#C9B79C"></span>
+<span style="background:#4A5A48"></span>
+<span style="background:#23211D"></span>
+</div>
+<div class="footer_grid">
+<div>
+<h4>RoomMatch</h4>
+<p>A bootcamp precursor to the VisionSpace graduation project.</p>
+</div>
+<div>
+<h4>Project</h4>
+<p>JDS / Maaloomatiia Bootcamp<br />Final Project 2026</p>
+</div>
+<div>
+<h4>Built by</h4>
+<p>Jameel Fakhoury</p>
+</div>
+<div>
+<h4>Code</h4>
+<a href="https://github.com/jameelf04/RoomMatch" target="_blank">GitHub</a>
+</div>
+</div>
+<p class="copyright">&copy; RoomMatch 2026</p>
+</footer>
+
+<script src="../js/auth_nav.js"></script>
+<script src="../js/admin.js"></script>
+</body>
+</html>

@@ -17,8 +17,8 @@ if (!$user) {
 }
 
 if (password_verify($password, $user["password_hash"])) {
-    $token = create_token($user["user_id"], $user["username"]);
-    echo json_encode(array("success" => true, "token" => $token, "username" => $user["username"]));
+    $token = create_token($user["user_id"], $user["username"], $user["is_admin"]);
+    echo json_encode(array("success" => true, "token" => $token, "username" => $user["username"], "is_admin" => $user["is_admin"]));
 } else {
     echo json_encode(array("error" => "invalid email or password"));
 }

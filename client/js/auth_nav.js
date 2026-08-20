@@ -5,8 +5,14 @@ const username = localStorage.getItem("username");
 const pagePrefix = window.location.pathname.includes("/pages/") ? "" : "client/pages/";
 
 if (token) {
+    let adminLink = "";
+    if (localStorage.getItem("is_admin") == "1") {
+        adminLink = `<a href="${pagePrefix}admin.html">Admin</a>`;
+    }
+
     authNav.innerHTML = `
         <span class="nav_user">Hi, ${username}</span>
+        ${adminLink}
         <a href="#" id="logout_btn">Log Out</a>
     `;
 
@@ -15,11 +21,8 @@ if (token) {
         e.preventDefault();
         localStorage.removeItem("token");
         localStorage.removeItem("username");
-        if (pagePrefix == "") {
-            window.location.href = "../../index.html";
-        } else {
-            window.location.href = "index.html";
-        }
+        localStorage.removeItem("is_admin");
+        window.location.href = pagePrefix == "" ? "../../index.html" : "index.html";
     });
 } else {
     authNav.innerHTML = `
