@@ -2,11 +2,11 @@
 
 $secret = "roommatch_secret_key_2026";
 
-function base64url_encode($data) {
+function b64url_encode($data) {
     return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
 }
 
-function base64url_decode($data) {
+function b64url_decode($data) {
     return base64_decode(strtr($data, '-_', '+/'));
 }
 
@@ -21,13 +21,13 @@ function create_token($userid, $username, $is_admin) {
         "exp" => time() + 86400
     ]);
 
-    $header_encoded = base64url_encode($header);
-    $payload_encoded = base64url_encode($payload);
+    $header_enc = b64url_encode($header);
+    $payload_enc = b64url_encode($payload);
 
-    $signature = hash_hmac("sha256", $header_encoded . "." . $payload_encoded, $secret, true);
-    $signature_encoded = base64url_encode($signature);
+    $sig = hash_hmac("sha256", $header_enc . "." . $payload_enc, $secret, true);
+    $sig_enc = b64url_encode($sig);
 
-    return $header_encoded . "." . $payload_encoded . "." . $signature_encoded;
+    return $header_enc . "." . $payload_enc . "." . $sig_enc;
 }
 
 function verify_token($token) {
@@ -38,17 +38,17 @@ function verify_token($token) {
         return false;
     }
 
-    $header_encoded = $parts[0];
-    $payload_encoded = $parts[1];
-    $signature_encoded = $parts[2];
+    $header_enc = $parts[0];
+    $payload_enc = $parts[1];
+    $sig_enc = $parts[2];
 
-    $expected = base64url_encode(hash_hmac("sha256", $header_encoded . "." . $payload_encoded, $secret, true));
+    $expected = b64url_encode(hash_hmac("sha256", $header_enc . "." . $payload_enc, $secret, true));
 
-    if ($signature_encoded != $expected) {
+    if ($sig_enc != $expected) {
         return false;
     }
 
-    $payload = json_decode(base64url_decode($payload_encoded), true);
+    $payload = json_decode(b64url_decode($payload_enc), true);
 
     if ($payload["exp"] < time()) {
         return false;
