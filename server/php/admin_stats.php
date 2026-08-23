@@ -1,6 +1,6 @@
 <?php
-include "connection.php";
-include "jwt.php";
+include(__DIR__ . "/connection.php");
+include(__DIR__ . "/jwt.php");
 
 $headers = getallheaders();
 $auth = "";
@@ -12,46 +12,64 @@ $token = str_replace("Bearer ", "", $auth);
 $payload = verify_token($token);
 
 if (!$payload || $payload["is_admin"] != 1) {
-    echo json_encode(array("error" => "unauthorized"));
-    exit;
+    $response = [];
+    $response["error"] = "unauthorized";
+    echo json_encode($response);
+    exit();
 }
 
-$stats = array();
+$stats = [];
 
-$r1 = mysqli_query($conn, "SELECT COUNT(*) AS c FROM users");
-$stats["users"] = mysqli_fetch_assoc($r1)["c"];
+$sql = "SELECT COUNT(*) AS c FROM users";
+$query = $mysql->prepare($sql);
+$query->execute();
+$stats["users"] = $query->get_result()->fetch_assoc()["c"];
 
-$r2 = mysqli_query($conn, "SELECT COUNT(*) AS c FROM room_sessions");
-$stats["sessions"] = mysqli_fetch_assoc($r2)["c"];
+$sql = "SELECT COUNT(*) AS c FROM room_sessions";
+$query = $mysql->prepare($sql);
+$query->execute();
+$stats["sessions"] = $query->get_result()->fetch_assoc()["c"];
 
-$r3 = mysqli_query($conn, "SELECT COUNT(*) AS c FROM furniture_items");
-$stats["items"] = mysqli_fetch_assoc($r3)["c"];
+$sql = "SELECT COUNT(*) AS c FROM furniture_items";
+$query = $mysql->prepare($sql);
+$query->execute();
+$stats["items"] = $query->get_result()->fetch_assoc()["c"];
 
-$r4 = mysqli_query($conn, "SELECT COUNT(*) AS c FROM favorites");
-$stats["favorites"] = mysqli_fetch_assoc($r4)["c"];
+$sql = "SELECT COUNT(*) AS c FROM favorites";
+$query = $mysql->prepare($sql);
+$query->execute();
+$stats["favorites"] = $query->get_result()->fetch_assoc()["c"];
 
-$r5 = mysqli_query($conn, "SELECT room_type, COUNT(*) AS c FROM room_sessions GROUP BY room_type");
-$byRoom = array();
-while ($row = mysqli_fetch_assoc($r5)) {
-    $byRoom[] = $row;
+$sql = "SELECT room_type, COUNT(*) AS c FROM room_sessions GROUP BY room_type";
+$query = $mysql->prepare($sql);
+$query->execute();
+$array = $query->get_result();
+$by_room = [];
+while ($row = $array->fetch_assoc()) {
+    $by_room[] = $row;
 }
-$stats["by_room"] = $byRoom;
+$stats["by_room"] = $by_room;
 
-$r6 = mysqli_query($conn, "SELECT style_pref, COUNT(*) AS c FROM room_sessions GROUP BY style_pref ORDER BY c DESC");
-$byStyle = array();
-while ($row = mysqli_fetch_assoc($r6)) {
-    $byStyle[] = $row;
+$sql = "SELECT style_pref, COUNT(*) AS c FROM room_sessions GROUP BY style_pref ORDER BY c DESC";
+$query = $mysql->prepare($sql);
+$query->execute();
+$array = $query->get_result();
+$by_style = [];
+while ($row = $array->fetch_assoc()) {
+    $by_style[] = $row;
 }
-$stats["by_style"] = $byStyle;
+$stats["by_style"] = $by_style;
 
-$r7 = mysqli_query($conn, "SELECT furniture_items.name, COUNT(*) AS c FROM favorites JOIN furniture_items ON favorites.item_id = furniture_items.item_id GROUP BY favorites.item_id ORDER BY c DESC LIMIT 5");
-$topFavs = array();
-while ($row = mysqli_fetch_assoc($r7)) {
-    $topFavs[] = $row;
+$sql = "SELECT furniture_items.name, COUNT(*) AS c FROM favorites JOIN furniture_items ON favorites.item_id = furniture_items.item_id GROUP BY favorites.item_id ORDER BY c DESC LIMIT 5";
+$query = $mysql->prepare($sql);
+$query->execute();
+$array = $query->get_result();
+$top_favorites = [];
+while ($row = $array->fetch_assoc()) {
+    $top_favorites[] = $row;
 }
-$stats["top_favorites"] = $topFavs;
+$stats["top_favorites"] = $top_favorites;
 
 echo json_encode($stats);
 
-mysqli_close($conn);
 ?>

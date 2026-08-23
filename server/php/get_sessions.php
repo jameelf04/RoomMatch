@@ -1,6 +1,6 @@
-    <?php
-include "connection.php";
-include "jwt.php";
+<?php
+include(__DIR__ . "/connection.php");
+include(__DIR__ . "/jwt.php");
 
 $headers = getallheaders();
 $auth = "";
@@ -12,22 +12,25 @@ $token = str_replace("Bearer ", "", $auth);
 $payload = verify_token($token);
 
 if (!$payload) {
-    echo json_encode(array("error" => "unauthorized"));
-    exit;
+    $response = [];
+    $response["error"] = "unauthorized";
+    echo json_encode($response);
+    exit();
 }
 
-$userId = $payload["user_id"];
+$userid = $payload["user_id"];
 
-$sql = "SELECT * FROM room_sessions WHERE user_id = '$userId' ORDER BY created_at DESC";
-$result = mysqli_query($conn, $sql);
+$sql = "SELECT * FROM room_sessions WHERE user_id = ? ORDER BY created_at DESC";
+$query = $mysql->prepare($sql);
+$query->bind_param("i", $userid);
+$query->execute();
+$array = $query->get_result();
 
-$sessions = array();
-
-while ($row = mysqli_fetch_assoc($result)) {
+$sessions = [];
+while ($row = $array->fetch_assoc()) {
     $sessions[] = $row;
 }
 
 echo json_encode($sessions);
 
-mysqli_close($conn);
 ?>

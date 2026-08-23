@@ -1,6 +1,6 @@
 <?php
-include "connection.php";
-include "jwt.php";
+include(__DIR__ . "/connection.php");
+include(__DIR__ . "/jwt.php");
 
 $headers = getallheaders();
 $auth = "";
@@ -12,125 +12,128 @@ $token = str_replace("Bearer ", "", $auth);
 $payload = verify_token($token);
 
 if (!$payload) {
-    echo json_encode(array("error" => "unauthorized"));
-    exit;
+    $response = [];
+    $response["error"] = "unauthorized";
+    echo json_encode($response);
+    exit();
 }
 
-$sessionId = $_GET["session"];
+$sessionid = $_GET["session"];
 
-$sql = "SELECT * FROM room_sessions WHERE session_id = '$sessionId'";
-$result = mysqli_query($conn, $sql);
-$session = mysqli_fetch_assoc($result);
+$sql = "SELECT * FROM room_sessions WHERE session_id = ?";
+$query = $mysql->prepare($sql);
+$query->bind_param("i", $sessionid);
+$query->execute();
+$array = $query->get_result();
+$session = $array->fetch_assoc();
 
 if (!$session) {
-    echo json_encode(array("error" => "session not found"));
-    exit;
+    $response = [];
+    $response["error"] = "session not found";
+    echo json_encode($response);
+    exit();
 }
 
-$roomType = $session["room_type"];
-$stylePref = $session["style_pref"];
+$room_type = $session["room_type"];
+$style_pref = $session["style_pref"];
 $budget = $session["budget"];
 $region = $session["region"];
-$roomArea = $session["room_area"];
-$roomColors = explode(",", $session["dominant_colors"]);
-$styleList = explode(",", $stylePref);
+$room_area = $session["room_area"];
+$room_colors = explode(",", $session["dominant_colors"]);
+$style_list = explode(",", $style_pref);
 
-function hexToRgb($hex) {
+function hex_to_rgb($hex) {
     $hex = str_replace("#", "", $hex);
     $r = hexdec(substr($hex, 0, 2));
     $g = hexdec(substr($hex, 2, 2));
     $b = hexdec(substr($hex, 4, 2));
-    return array($r, $g, $b);
+    return [$r, $g, $b];
 }
 
-function colorDistance($rgb1, $rgb2) {
+function color_distance($rgb1, $rgb2) {
     $dr = $rgb1[0] - $rgb2[0];
     $dg = $rgb1[1] - $rgb2[1];
     $db = $rgb1[2] - $rgb2[2];
     return sqrt($dr * $dr + $dg * $dg + $db * $db);
 }
 
-$roomRgbList = array();
-for ($i = 0; $i < count($roomColors); $i++) {
-    $roomRgbList[] = hexToRgb($roomColors[$i]);
+$room_rgb_list = [];
+for ($i = 0; $i < count($room_colors); $i++) {
+    $room_rgb_list[] = hex_to_rgb($room_colors[$i]);
 }
 
-$sql2 = "SELECT * FROM furniture_items WHERE room_type = '$roomType' AND price <= '$budget'";
-if ($roomArea > 0) {
-    $sql2 = $sql2 . " AND min_room_area <= '$roomArea'";
-}
-$result2 = mysqli_query($conn, $sql2);
+$sql = "SELECT * FROM furniture_items WHERE room_type = ? AND price <= ? AND min_room_area <= ?";
+$area_check = $room_area > 0 ? $room_area : 999999;
+$query = $mysql->prepare($sql);
+$query->bind_param("sdd", $room_type, $budget, $area_check);
+$query->execute();
+$array = $query->get_result();
 
-$items = array();
+$items = [];
 
-while ($row = mysqli_fetch_assoc($result2)) {
-    $itemRgb = hexToRgb($row["color_hex"]);
+while ($row = $array->fetch_assoc()) {
+    $item_rgb = hex_to_rgb($row["color_hex"]);
 
-    $minDistance = 999999;
-    for ($i = 0; $i < count($roomRgbList); $i++) {
-        $dist = colorDistance($roomRgbList[$i], $itemRgb);
-        if ($dist < $minDistance) {
-            $minDistance = $dist;
+    $min_distance = 999999;
+    for ($i = 0; $i < count($room_rgb_list); $i++) {
+        $dist = color_distance($room_rgb_list[$i], $item_rgb);
+        if ($dist < $min_distance) {
+            $min_distance = $dist;
         }
     }
 
-    $maxDistance = 441.67;
-    $colorScore = 1 - ($minDistance / $maxDistance);
-    if ($colorScore < 0) {
-        $colorScore = 0;
+    $max_distance = 441.67;
+    $color_score = 1 - ($min_distance / $max_distance);
+    if ($color_score < 0) {
+        $color_score = 0;
     }
 
-    $styleScore = 0.3;
-    for ($k = 0; $k < count($styleList); $k++) {
-        if ($row["style"] == $styleList[$k]) {
-            $styleScore = 1;
+    $style_score = 0.3;
+    for ($k = 0; $k < count($style_list); $k++) {
+        if ($row["style"] == $style_list[$k]) {
+            $style_score = 1;
         }
     }
 
-    $priceScore = 1 - ($row["price"] / $budget);
-    if ($priceScore < 0) {
-        $priceScore = 0;
+    $price_score = 1 - ($row["price"] / $budget);
+    if ($price_score < 0) {
+        $price_score = 0;
     }
 
-    $regionScore = 0;
+    $region_score = 0.5;
     if ($row["region"] == $region) {
-        $regionScore = 1;
-    } else {
-        $regionScore = 0.5;
+        $region_score = 1;
     }
 
-    $finalScore = ($styleScore * 0.4) + ($colorScore * 0.35) + ($priceScore * 0.15) + ($regionScore * 0.1);
+    $final_score = ($style_score * 0.4) + ($color_score * 0.35) + ($price_score * 0.15) + ($region_score * 0.1);
 
-    $explanation = "Recommended because it ";
-    $reasons = array();
+    $reasons = [];
 
-    if ($styleScore == 1) {
+    if ($style_score == 1) {
         $reasons[] = "matches your " . $row["style"] . " style";
     }
-    if ($colorScore > 0.7) {
+    if ($color_score > 0.7) {
         $reasons[] = "complements your room's colors";
     }
     if ($row["price"] <= $budget) {
         $reasons[] = "is within your budget";
     }
-    if ($regionScore == 1) {
+    if ($region_score == 1) {
         $reasons[] = "is available in your region";
     }
-    if ($roomArea > 0) {
-        $reasons[] = "fits your " . $roomArea . " m2 room";
+    if ($room_area > 0) {
+        $reasons[] = "fits your " . $room_area . " m2 room";
     }
 
     if (count($reasons) == 0) {
         $reasons[] = "is a close match to your preferences";
     }
 
-    $explanation = $explanation . implode(", ", $reasons);
-
-    $row["match_score"] = round($finalScore, 4);
-    $row["style_score"] = round($styleScore, 4);
-    $row["color_score"] = round($colorScore, 4);
-    $row["price_score"] = round($priceScore, 4);
-    $row["explanation"] = $explanation;
+    $row["match_score"] = round($final_score, 4);
+    $row["style_score"] = round($style_score, 4);
+    $row["color_score"] = round($color_score, 4);
+    $row["price_score"] = round($price_score, 4);
+    $row["explanation"] = "Recommended because it " . implode(", ", $reasons);
 
     $items[] = $row;
 }
@@ -142,27 +145,24 @@ usort($items, function($a, $b) {
     return ($a["match_score"] < $b["match_score"]) ? 1 : -1;
 });
 
-$topItems = array_slice($items, 0, 9);
+$top_items = array_slice($items, 0, 9);
 
-$checkSql = "SELECT * FROM match_results WHERE session_id = '$sessionId'";
-$checkResult = mysqli_query($conn, $checkSql);
+$sql = "SELECT * FROM match_results WHERE session_id = ?";
+$query = $mysql->prepare($sql);
+$query->bind_param("i", $sessionid);
+$query->execute();
+$check = $query->get_result();
 
-if (mysqli_num_rows($checkResult) == 0) {
-    for ($i = 0; $i < count($topItems); $i++) {
-        $it = $topItems[$i];
-        $itemId = $it["item_id"];
-        $ms = $it["match_score"];
-        $ss = $it["style_score"];
-        $cs = $it["color_score"];
-        $ps = $it["price_score"];
-        $ex = mysqli_real_escape_string($conn, $it["explanation"]);
-
-        $insertSql = "INSERT INTO match_results (session_id, item_id, match_score, style_score, color_score, price_score, explanation) VALUES ('$sessionId', '$itemId', '$ms', '$ss', '$cs', '$ps', '$ex')";
-        mysqli_query($conn, $insertSql);
+if ($check->num_rows == 0) {
+    for ($i = 0; $i < count($top_items); $i++) {
+        $it = $top_items[$i];
+        $sql = "INSERT INTO match_results(session_id, item_id, match_score, style_score, color_score, price_score, explanation) VALUES(?, ?, ?, ?, ?, ?, ?)";
+        $query = $mysql->prepare($sql);
+        $query->bind_param("iidddds", $sessionid, $it["item_id"], $it["match_score"], $it["style_score"], $it["color_score"], $it["price_score"], $it["explanation"]);
+        $query->execute();
     }
 }
 
-echo json_encode($topItems);
+echo json_encode($top_items);
 
-mysqli_close($conn);
 ?>

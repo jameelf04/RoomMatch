@@ -1,32 +1,42 @@
 <?php
-include "connection.php";
-include "jwt.php";
+include(__DIR__ . "/connection.php");
+include(__DIR__ . "/jwt.php");
 
 $input = json_decode(file_get_contents("php://input"), true);
 
-$username = mysqli_real_escape_string($conn, $input["username"]);
-$email = mysqli_real_escape_string($conn, $input["email"]);
+$username = $input["username"];
+$email = $input["email"];
 $password = $input["password"];
 
-$check = "SELECT * FROM users WHERE email = '$email'";
-$result = mysqli_query($conn, $check);
+$sql = "SELECT user_id FROM users WHERE email = ?";
+$query = $mysql->prepare($sql);
+$query->bind_param("s", $email);
+$query->execute();
+$array = $query->get_result();
 
-if (mysqli_num_rows($result) > 0) {
-    echo json_encode(array("error" => "email already registered"));
-    exit;
+if ($array->num_rows > 0) {
+    $response = [];
+    $response["success"] = false;
+    $response["message"] = "Email already registered!";
+    echo json_encode($response);
+    exit();
 }
 
 $hash = password_hash($password, PASSWORD_BCRYPT);
 
-$sql = "INSERT INTO users (username, email, password_hash) VALUES ('$username', '$email', '$hash')";
+$sql = "INSERT INTO users(username, email, password_hash) VALUES(?, ?, ?)";
+$query = $mysql->prepare($sql);
+$query->bind_param("sss", $username, $email, $hash);
+$query->execute();
 
-if (mysqli_query($conn, $sql)) {
-    $userId = mysqli_insert_id($conn);
-    $token = create_token($userId, $username, 0);
-    echo json_encode(array("success" => true, "token" => $token, "username" => $username, "is_admin" => 0));
-} else {
-    echo json_encode(array("error" => mysqli_error($conn)));
-}
+$userid = $mysql->insert_id;
+$token = create_token($userid, $username, 0);
 
-mysqli_close($conn);
+$response = [];
+$response["success"] = true;
+$response["token"] = $token;
+$response["username"] = $username;
+$response["is_admin"] = 0;
+echo json_encode($response);
+
 ?>

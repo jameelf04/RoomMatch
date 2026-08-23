@@ -1,6 +1,6 @@
 <?php
-include "connection.php";
-include "jwt.php";
+include(__DIR__ . "/connection.php");
+include(__DIR__ . "/jwt.php");
 
 $headers = getallheaders();
 $auth = "";
@@ -12,19 +12,22 @@ $token = str_replace("Bearer ", "", $auth);
 $payload = verify_token($token);
 
 if (!$payload) {
-    echo json_encode(array("error" => "unauthorized"));
-    exit;
+    $response = [];
+    $response["error"] = "unauthorized";
+    echo json_encode($response);
+    exit();
 }
 
 $sql = "SELECT * FROM furniture_items ORDER BY name";
-$result = mysqli_query($conn, $sql);
+$query = $mysql->prepare($sql);
+$query->execute();
+$array = $query->get_result();
 
-$items = array();
-while ($row = mysqli_fetch_assoc($result)) {
+$items = [];
+while ($row = $array->fetch_assoc()) {
     $items[] = $row;
 }
 
 echo json_encode($items);
 
-mysqli_close($conn);
 ?>

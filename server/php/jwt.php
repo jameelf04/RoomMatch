@@ -1,4 +1,5 @@
 <?php
+
 $secret = "roommatch_secret_key_2026";
 
 function base64url_encode($data) {
@@ -9,24 +10,24 @@ function base64url_decode($data) {
     return base64_decode(strtr($data, '-_', '+/'));
 }
 
-function create_token($userId, $username, $isAdmin) {
+function create_token($userid, $username, $is_admin) {
     global $secret;
 
-    $header = json_encode(array("alg" => "HS256", "typ" => "JWT"));
-    $payload = json_encode(array(
-        "user_id" => $userId,
+    $header = json_encode(["alg" => "HS256", "typ" => "JWT"]);
+    $payload = json_encode([
+        "user_id" => $userid,
         "username" => $username,
-        "is_admin" => $isAdmin,
+        "is_admin" => $is_admin,
         "exp" => time() + 86400
-    ));
+    ]);
 
-    $headerEncoded = base64url_encode($header);
-    $payloadEncoded = base64url_encode($payload);
+    $header_encoded = base64url_encode($header);
+    $payload_encoded = base64url_encode($payload);
 
-    $signature = hash_hmac("sha256", $headerEncoded . "." . $payloadEncoded, $secret, true);
-    $signatureEncoded = base64url_encode($signature);
+    $signature = hash_hmac("sha256", $header_encoded . "." . $payload_encoded, $secret, true);
+    $signature_encoded = base64url_encode($signature);
 
-    return $headerEncoded . "." . $payloadEncoded . "." . $signatureEncoded;
+    return $header_encoded . "." . $payload_encoded . "." . $signature_encoded;
 }
 
 function verify_token($token) {
@@ -37,17 +38,17 @@ function verify_token($token) {
         return false;
     }
 
-    $headerEncoded = $parts[0];
-    $payloadEncoded = $parts[1];
-    $signatureEncoded = $parts[2];
+    $header_encoded = $parts[0];
+    $payload_encoded = $parts[1];
+    $signature_encoded = $parts[2];
 
-    $expected = base64url_encode(hash_hmac("sha256", $headerEncoded . "." . $payloadEncoded, $secret, true));
+    $expected = base64url_encode(hash_hmac("sha256", $header_encoded . "." . $payload_encoded, $secret, true));
 
-    if ($signatureEncoded != $expected) {
+    if ($signature_encoded != $expected) {
         return false;
     }
 
-    $payload = json_decode(base64url_decode($payloadEncoded), true);
+    $payload = json_decode(base64url_decode($payload_encoded), true);
 
     if ($payload["exp"] < time()) {
         return false;
@@ -55,4 +56,5 @@ function verify_token($token) {
 
     return $payload;
 }
+
 ?>

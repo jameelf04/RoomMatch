@@ -1,6 +1,6 @@
 <?php
-include "connection.php";
-include "jwt.php";
+include(__DIR__ . "/connection.php");
+include(__DIR__ . "/jwt.php");
 
 $headers = getallheaders();
 $auth = "";
@@ -12,25 +12,41 @@ $token = str_replace("Bearer ", "", $auth);
 $payload = verify_token($token);
 
 if (!$payload) {
-    echo json_encode(array("error" => "unauthorized"));
-    exit;
+    $response = [];
+    $response["error"] = "unauthorized";
+    echo json_encode($response);
+    exit();
 }
 
-$userId = $payload["user_id"];
+$userid = $payload["user_id"];
 
 $input = json_decode(file_get_contents("php://input"), true);
-$itemId = mysqli_real_escape_string($conn, $input["item_id"]);
+$itemid = $input["item_id"];
 
-$check = "SELECT * FROM favorites WHERE user_id = '$userId' AND item_id = '$itemId'";
-$result = mysqli_query($conn, $check);
+$sql = "SELECT fav_id FROM favorites WHERE user_id = ? AND item_id = ?";
+$query = $mysql->prepare($sql);
+$query->bind_param("ii", $userid, $itemid);
+$query->execute();
+$array = $query->get_result();
 
-if (mysqli_num_rows($result) > 0) {
-    mysqli_query($conn, "DELETE FROM favorites WHERE user_id = '$userId' AND item_id = '$itemId'");
-    echo json_encode(array("favorited" => false));
+if ($array->num_rows > 0) {
+    $sql = "DELETE FROM favorites WHERE user_id = ? AND item_id = ?";
+    $query = $mysql->prepare($sql);
+    $query->bind_param("ii", $userid, $itemid);
+    $query->execute();
+
+    $response = [];
+    $response["favorited"] = false;
+    echo json_encode($response);
 } else {
-    mysqli_query($conn, "INSERT INTO favorites (user_id, item_id) VALUES ('$userId', '$itemId')");
-    echo json_encode(array("favorited" => true));
+    $sql = "INSERT INTO favorites(user_id, item_id) VALUES(?, ?)";
+    $query = $mysql->prepare($sql);
+    $query->bind_param("ii", $userid, $itemid);
+    $query->execute();
+
+    $response = [];
+    $response["favorited"] = true;
+    echo json_encode($response);
 }
 
-mysqli_close($conn);
 ?>

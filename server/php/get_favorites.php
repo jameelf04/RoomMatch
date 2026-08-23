@@ -1,6 +1,6 @@
 <?php
-include "connection.php";
-include "jwt.php";
+include(__DIR__ . "/connection.php");
+include(__DIR__ . "/jwt.php");
 
 $headers = getallheaders();
 $auth = "";
@@ -12,22 +12,25 @@ $token = str_replace("Bearer ", "", $auth);
 $payload = verify_token($token);
 
 if (!$payload) {
-    echo json_encode(array("error" => "unauthorized"));
-    exit;
+    $response = [];
+    $response["error"] = "unauthorized";
+    echo json_encode($response);
+    exit();
 }
 
-$userId = $payload["user_id"];
+$userid = $payload["user_id"];
 
-$sql = "SELECT furniture_items.*, favorites.fav_id FROM favorites JOIN furniture_items ON favorites.item_id = furniture_items.item_id WHERE favorites.user_id = '$userId' ORDER BY favorites.created_at DESC";
-$result = mysqli_query($conn, $sql);
+$sql = "SELECT furniture_items.*, favorites.fav_id FROM favorites JOIN furniture_items ON favorites.item_id = furniture_items.item_id WHERE favorites.user_id = ? ORDER BY favorites.created_at DESC";
+$query = $mysql->prepare($sql);
+$query->bind_param("i", $userid);
+$query->execute();
+$array = $query->get_result();
 
-$items = array();
-
-while ($row = mysqli_fetch_assoc($result)) {
+$items = [];
+while ($row = $array->fetch_assoc()) {
     $items[] = $row;
 }
 
 echo json_encode($items);
 
-mysqli_close($conn);
 ?>

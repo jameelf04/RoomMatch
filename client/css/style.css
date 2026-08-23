@@ -895,3 +895,14 @@ input[type="color"] {
         border: 1px solid #DAD5C9;
     }
 }
+
+.dropzone_hint {
+    margin-top: 10px;
+    font-size: 0.85rem;
+    color: #9B9889;
+}
+
+.upload_dropzone.drag_active {
+    border-color: #A9793A;
+    background-color: #F5F0E5;
+}

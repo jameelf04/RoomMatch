@@ -1,12 +1,10 @@
 <?php
-$host = "localhost";
-$user = "root";
-$pass = "";
-$db = "roommatch";
 
-$conn = mysqli_connect($host, $user, $pass, $db);
+$db_host = "localhost";
+$db_user = "root";
+$db_pass = null;
+$db_name = "roommatch";
 
-if (!$conn) {
-    die("connection failed: " . mysqli_connect_error());
-}
+$mysql = new mysqli($db_host, $db_user, $db_pass, $db_name);
+
 ?>
