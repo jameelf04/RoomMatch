@@ -127,6 +127,37 @@ dropzone.addEventListener("drop", (e) => {
     reader.readAsDataURL(file);
 });
 
+const surpriseBtn = document.getElementById("surprise_btn");
+
+surpriseBtn.addEventListener("click", () => {
+    const styles = ["modern", "classic", "scandinavian", "boho", "industrial"];
+    const regions = ["jordan", "gcc", "international"];
+    const budgets = [200, 350, 500, 700, 900];
+
+    const randomRegion = regions[Math.floor(Math.random() * regions.length)];
+    const randomBudget = budgets[Math.floor(Math.random() * budgets.length)];
+
+    document.getElementById("region").value = randomRegion;
+    document.getElementById("budget").value = randomBudget;
+
+    const checks = document.querySelectorAll(".style_check");
+    for (let i = 0; i < checks.length; i++) {
+        checks[i].checked = false;
+    }
+
+    const shuffled = styles.sort(() => Math.random() - 0.5);
+    const pickCount = Math.random() < 0.5 ? 1 : 2;
+
+    for (let i = 0; i < pickCount; i++) {
+        for (let j = 0; j < checks.length; j++) {
+            if (checks[j].value == shuffled[i]) {
+                checks[j].checked = true;
+            }
+        }
+    }
+
+    uploadError.innerText = "";
+});
 
 const submitBtn = document.getElementById("submit_btn");
 
