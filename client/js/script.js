@@ -89,6 +89,45 @@ fileInput.addEventListener("change", () => {
     reader.readAsDataURL(file);
 });
 
+const dropzone = document.getElementById("dropzone");
+
+dropzone.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    dropzone.classList.add("drag_active");
+});
+
+dropzone.addEventListener("dragleave", () => {
+    dropzone.classList.remove("drag_active");
+});
+
+dropzone.addEventListener("drop", (e) => {
+    e.preventDefault();
+    dropzone.classList.remove("drag_active");
+
+    const file = e.dataTransfer.files[0];
+    if (!file) {
+        return;
+    }
+
+    fileInput.files = e.dataTransfer.files;
+    uploadError.innerText = "";
+
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+        const img = new Image();
+        img.onload = () => {
+            previewArea.innerHTML = "";
+            previewArea.appendChild(img);
+            extractedColors = extractColors(img);
+            showSwatches(extractedColors);
+        };
+        img.src = ev.target.result;
+        img.style.maxWidth = "100%";
+    };
+    reader.readAsDataURL(file);
+});
+
+
 const submitBtn = document.getElementById("submit_btn");
 
 submitBtn.addEventListener("click", () => {

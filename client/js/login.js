@@ -1,3 +1,8 @@
+
+if (localStorage.getItem("token")) {
+    window.location.href = "../../index.html";
+}
+
 const loginBtn = document.getElementById("login_btn");
 const loginError = document.getElementById("login_error");
 
@@ -22,11 +27,11 @@ loginBtn.addEventListener("click", () => {
     })
     .then((res) => res.json())
     .then((data) => {
-        if (data.success) {
+                if (data.success) {
             localStorage.setItem("token", data.token);
             localStorage.setItem("username", data.username);
-            localStorage.setItem("is_admin", data.is_admin);    
-            window.location.href = "upload.html";
+            localStorage.setItem("is_admin", data.is_admin);
+            window.location.href = "../../index.html";
         } else {
             loginError.innerText = data.error;
         }
