@@ -1,22 +1,8 @@
 <?php
 include(__DIR__ . "/connection.php");
 include(__DIR__ . "/jwt.php");
+include(__DIR__ . "/admin_check.php");
 
-
-$headers = getallheaders();
-$auth = "";
-if (isset($headers["Authorization"])) {
-    $auth = $headers["Authorization"];
-}
-
-$token = str_replace("Bearer ", "", $auth);
-$payload = verify_token($token);
-if (!$payload || $payload["is_admin"] != 1) {
-    $response = [];
-    $response["error"] = "unauthorized";
-    echo json_encode($response);
-    exit();
-}
 $stats = [];
 $sql = "SELECT COUNT(*) AS c FROM users";
 $query = $mysql->prepare($sql);

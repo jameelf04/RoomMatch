@@ -1,18 +1,7 @@
 <?php
 include(__DIR__ . "/connection.php");
 include(__DIR__ . "/jwt.php");
-$headers = getallheaders();
-$auth = "";
-if (isset($headers["Authorization"])) {
-    $auth = $headers["Authorization"];
-}
-$token = str_replace("Bearer ", "", $auth);
-$payload = verify_token($token);
-if (!$payload) {
-    $response = [];
-    $response["error"] = "unauthorized";
-    echo json_encode($response);
-    exit();}
+include(__DIR__ . "/auth_check.php");
 
 $userid = $payload["user_id"];
 $input = json_decode(file_get_contents("php://input"), true);

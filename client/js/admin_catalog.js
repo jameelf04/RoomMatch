@@ -59,7 +59,6 @@ const loadItems = () => {
                 window.scrollTo(0, 0);
             });
 
-            const deleteBtn = card.querySelector(".delete_btn");
                         const deleteBtn = card.querySelector(".delete_btn");
             deleteBtn.addEventListener("click", () => {
                 showConfirm("Delete this item?", "This removes it from the catalog and any favorites.", () => {
