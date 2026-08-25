@@ -4,7 +4,8 @@ include(__DIR__ . "/jwt.php");
 include(__DIR__ . "/auth_check.php");
 
 $userid = $payload["user_id"];
-$sql = "SELECT furniture_items.*, favorites.fav_id FROM favorites JOIN furniture_items ON favorites.item_id = furniture_items.item_id WHERE favorites.user_id = ? ORDER BY favorites.created_at DESC";
+
+$sql = "SELECT item_id FROM favorites WHERE user_id = ? ORDER BY created_at DESC";
 $query = $mysql->prepare($sql);
 $query->bind_param("i", $userid);
 $query->execute();
@@ -12,7 +13,17 @@ $array = $query->get_result();
 
 $items = [];
 while ($row = $array->fetch_assoc()) {
-    $items[] = $row;}
-echo json_encode($items);
+    $sql2 = "SELECT * FROM furniture_items WHERE item_id = ?";
+    $query2 = $mysql->prepare($sql2);
+    $query2->bind_param("i", $row["item_id"]);
+    $query2->execute();
+    $array2 = $query2->get_result();
+    $item = $array2->fetch_assoc();
 
+    if ($item) {
+        $items[] = $item;
+    }
+}
+
+echo json_encode($items);
 ?>

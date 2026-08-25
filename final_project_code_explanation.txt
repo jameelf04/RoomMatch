@@ -1,0 +1,913 @@
+Final Project Code Explanation :
+
+--------------- PHP FILES ---------------
+
+1) connection.php : is basically the connecting route between all files and the database.
+
+2) admin_check.php :
+<?php
+$headers = getallheaders();
+$auth = "";
+if (isset($headers["Authorization"])) {
+    $auth = $headers["Authorization"];
+}
+
+$token = str_replace("Bearer ", "", $auth);
+$payload = verify_token($token);
+
+if (!$payload || $payload["is_admin"] != 1) {
+    $response = [];
+    $response["error"] = "unauthorized";
+    echo json_encode($response);
+    exit();
+}
+?>
+
+this code basically protects the website so only authorized users access... its a shared file between all admin functions and php code files,, reads the auth header and verifies the token if its valid and user is an admin contiues if not stops the script.
+
+3) admin_delete_items.php :
+<?php
+include(__DIR__ . "/connection.php");
+include(__DIR__ . "/jwt.php");
+include(__DIR__ . "/admin_check.php");
+
+$input = json_decode(file_get_contents("php://input"), true);
+$itemid = $input["item_id"];
+$sql = "DELETE FROM favorites WHERE item_id = ?";
+$query = $mysql->prepare($sql);
+$query->bind_param("i", $itemid);
+$query->execute();
+
+$sql = "DELETE FROM match_results WHERE item_id = ?";
+$query = $mysql->prepare($sql);
+$query->bind_param("i", $itemid);
+$query->execute();
+$sql = "DELETE FROM furniture_items WHERE item_id = ?";
+$query = $mysql->prepare($sql);
+$query->bind_param("i", $itemid);
+
+if ($query->execute()) {
+    $response = [];
+    $response["success"] = true;
+    echo json_encode($response);
+} else {
+    $response = [];
+    $response["error"] = $mysql->error;
+    echo json_encode($response);}
+
+?>
+
+we use admin_check as said before at first then reads an item_id from the json request then deletes all the records related to that itemid from favorites and match_results tables then deletes the actual item from furniture_items if it fails it returns a db error. 
+
+4) admin_items.php : 
+
+<?php
+include(__DIR__ . "/connection.php");
+include(__DIR__ . "/jwt.php");
+include(__DIR__ . "/admin_check.php");
+
+$sql = "SELECT * FROM furniture_items ORDER BY item_id DESC";
+$query = $mysql->prepare($sql);
+$query->execute();
+$array = $query->get_result();
+$items = [];
+while ($row = $array->fetch_assoc()) {
+    $items[] = $row;
+}
+echo json_encode($items); ?>
+
+loads and checks JWT and admin auth, then gets all the items from furniture_items table and sorts them in descending order, so newely added ids show first and stores all retrieved items in the array and returns list as JSON response
+
+5) admin_save_item.php :
+
+<?php
+include(__DIR__ . "/connection.php");
+include(__DIR__ . "/jwt.php");
+include(__DIR__ . "/admin_check.php");
+
+$input = json_decode(file_get_contents("php://input"), true);
+
+$name = $input["name"];
+$category = $input["category"];
+$room_type = $input["room_type"];
+$style = $input["style"];
+$color_hex = $input["color_hex"];
+$price = $input["price"];
+$store_name = $input["store_name"];
+$region = $input["region"];
+$image_url = $input["image_url"];
+$purchase_url = $input["purchase_url"];
+$min_room_area = $input["min_room_area"];
+if ($min_room_area == "")   {
+    $min_room_area = 0;}
+
+if ($input["item_id"] == "" || $input["item_id"] == null) {
+    $sql = "INSERT INTO furniture_items(name, category, room_type, style, color_hex, price, store_name, region, image_url, purchase_url, min_room_area) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    $query = $mysql->prepare($sql);
+    $query->bind_param("ssssdssssss", $name, $category, $room_type, $style, $color_hex, $price, $store_name, $region, $image_url, $purchase_url, $min_room_area);
+} else {
+    $itemid = $input["item_id"];
+    $sql = "UPDATE furniture_items SET name = ?, category = ?, room_type = ?, style = ?, color_hex = ?, price = ?, store_name = ?, region = ?, image_url = ?, purchase_url = ?, min_room_area = ? WHERE item_id = ?";
+    $query = $mysql->prepare($sql);
+    $query->bind_param("ssssdsssssdi", $name, $category, $room_type, $style, $color_hex, $price, $store_name, $region, $image_url, $purchase_url, $min_room_area, $itemid);}
+if ($query->execute()) {
+    $response = [];
+    $response["success"] = true;
+    echo json_encode($response);
+} else {
+    $response = [];
+    $response["error"] = $mysql->error;
+    echo json_encode($response);}
+
+?>
+
+this handles adding or updating an item in the catalog by the admin , retrieves all item info and if min room area is empty sets it to 0, and checks if itemid is given if not it creates new item if yes updates the item.
+
+6) admin_stats.php :
+
+<?php
+include(__DIR__ . "/connection.php");
+include(__DIR__ . "/jwt.php");
+include(__DIR__ . "/admin_check.php");
+
+$stats = [];
+$sql = "SELECT COUNT(*) AS c FROM users";
+$query = $mysql->prepare($sql);
+$query->execute();
+$stats["users"] = $query->get_result()->fetch_assoc()["c"];
+
+$sql = "SELECT COUNT(*) AS c FROM room_sessions";
+$query = $mysql->prepare($sql);
+$query->execute();
+$stats["sessions"] = $query->get_result()->fetch_assoc()["c"];
+
+$sql = "SELECT COUNT(*) AS c FROM furniture_items";
+$query = $mysql->prepare($sql);
+$query->execute();
+$stats["items"] = $query->get_result()->fetch_assoc()["c"];
+$sql = "SELECT COUNT(*) AS c FROM favorites";
+$query = $mysql->prepare($sql);
+$query->execute();
+$stats["favorites"] = $query->get_result()->fetch_assoc()["c"];
+
+$sql = "SELECT room_type, COUNT(*) AS c FROM room_sessions GROUP BY room_type";
+$query = $mysql->prepare($sql);
+$query->execute();
+$array = $query->get_result();
+$by_room = [];
+while ($row = $array->fetch_assoc()) {
+    $by_room[] = $row;
+}
+
+$stats["by_room"] = $by_room;
+$sql = "SELECT style_pref, COUNT(*) AS c FROM room_sessions GROUP BY style_pref ORDER BY c DESC";
+$query = $mysql->prepare($sql);
+$query->execute();
+$array = $query->get_result();
+$by_style = [];
+while ($row = $array->fetch_assoc()) {
+    $by_style[] = $row;}
+
+$stats["by_style"] = $by_style;
+
+$sql = "SELECT furniture_items.name, COUNT(*) AS c FROM favorites JOIN furniture_items ON favorites.item_id = furniture_items.item_id GROUP BY favorites.item_id ORDER BY c DESC LIMIT 5";
+$query = $mysql->prepare($sql);
+$query->execute();
+$array = $query->get_result();
+$top_favorites = [];
+while ($row = $array->fetch_assoc()) {
+    $top_favorites[] = $row;
+}
+$stats["top_favorites"] = $top_favorites;
+echo json_encode($stats);
+
+?>
+
+its for the admin panel dashboard it collects total number of users and total number of sessions created by the users and number of furniture items in the catalog or db and how many favorites have all the users added to their profiles,,, also provides number of living room or bedroom sessions and number of how many each style preference has been used in sessions, also joins top 5 favorited items by users.
+
+7) auth_check.php : 
+
+<?php
+$headers = getallheaders();
+$auth = "";
+if (isset($headers["Authorization"])) {
+    $auth = $headers["Authorization"];
+}
+
+$token = str_replace("Bearer ", "", $auth);
+$payload = verify_token($token);
+
+if (!$payload) {
+    $response = [];
+    $response["error"] = "unauthorized";
+    echo json_encode($response);
+    exit();
+}
+?> 
+
+different from the admins auth check its a general auth check for all other users , looks for the users auth header 	and gets jwt token and verifies it, if its missing or invalid it returns it and if its valid the rest of the endpoint will be allowed for the user.
+
+8) delete_session.php : 
+
+<?php
+include(__DIR__ . "/connection.php");
+include(__DIR__ . "/jwt.php");
+include(__DIR__ . "/auth_check.php");
+
+$userid = $payload["user_id"];
+
+$input = json_decode(file_get_contents("php://input"), true);
+$sessionid = $input["session_id"];
+$sql = "DELETE FROM match_results WHERE session_id = ?";
+$query = $mysql->prepare($sql);
+$query->bind_param("i", $sessionid);
+
+$query->execute();
+$sql = "DELETE FROM room_sessions WHERE session_id = ? AND user_id = ?";
+$query = $mysql->prepare($sql);
+$query->bind_param("ii", $sessionid, $userid);
+if ($query->execute()) {
+    $response = [];
+    $response["success"] = true;
+    echo json_encode($response);
+} else {
+    $response = [];
+    $response["error"] = $mysql->error;
+    echo json_encode($response);}
+?>
+
+it auth checks at first then receives the session id that the user wants to delete, and deletes all match_results with this session and deletes room session only if it belongs to the user.. returns a success response if the deletion succeeds, otherwise returns a database error.
+
+9) get_bundle.php :
+
+<?php
+include(__DIR__ . "/connection.php");
+include(__DIR__ . "/jwt.php");
+include(__DIR__ . "/auth_check.php");
+
+$userid = $payload["user_id"];
+$sessionid = $_GET["session"];
+$sql = "SELECT * FROM room_sessions WHERE session_id = ?";
+$query = $mysql->prepare($sql);
+$query->bind_param("i", $sessionid);
+$query->execute();
+$array = $query->get_result();
+$session = $array->fetch_assoc();
+
+if (!$session) {
+    $response = [];
+    $response["error"] = "session not found";
+    echo json_encode($response);
+    exit();
+}
+
+$room_type = $session["room_type"];
+$style_pref = $session["style_pref"];
+$budget = $session["budget"];
+$region = $session["region"];
+$room_area = $session["room_area"];
+$room_colors = explode(",", $session["dominant_colors"]);
+$style_list = explode(",", $style_pref);
+function hex_to_rgb2($hex) {
+    $hex = str_replace("#", "", $hex);
+    $r = hexdec(substr($hex, 0, 2));
+    $g = hexdec(substr($hex, 2, 2));
+    $b = hexdec(substr($hex, 4, 2));
+    return [$r, $g, $b];
+}
+function color_distance2($rgb1, $rgb2) {
+    $dr = $rgb1[0] - $rgb2[0];
+    $dg = $rgb1[1] - $rgb2[1];
+    $db = $rgb1[2] - $rgb2[2];
+    return sqrt($dr * $dr + $dg * $dg + $db * $db);
+}
+$room_rgb_list = [];
+for ($i = 0; $i < count($room_colors); $i++) {
+    $room_rgb_list[] = hex_to_rgb2($room_colors[$i]);
+}
+
+if ($room_type == "living_room") {
+    $order = ["sofa", "coffee_table", "rug", "armchair", "floor_lamp", "side_table"];
+} else {
+    $order = ["bed", "wardrobe", "dresser", "nightstand", "rug", "bedroom_lamp"];}
+
+$sql = "SELECT * FROM furniture_items WHERE room_type = ? AND min_room_area <= ?";
+$area_check = $room_area > 0 ? $room_area : 999999;
+$query = $mysql->prepare($sql);
+$query->bind_param("sd", $room_type, $area_check);
+$query->execute();
+$array = $query->get_result();
+$scored = [];
+
+while ($row = $array->fetch_assoc()) {
+    $item_rgb = hex_to_rgb2($row["color_hex"]);
+    $min_distance = 999999;
+    for ($i = 0; $i < count($room_rgb_list); $i++) {
+        $dist = color_distance2($room_rgb_list[$i], $item_rgb);
+        if ($dist < $min_distance) {
+            $min_distance = $dist;
+        }
+    }
+    $max_distance = 441.67;
+    $color_score = 1 - ($min_distance / $max_distance);
+    if ($color_score < 0) {
+        $color_score = 0;
+    }
+    $style_score = 0.3;
+    for ($k = 0; $k < count($style_list); $k++) {
+        if ($row["style"] == $style_list[$k]) {
+            $style_score = 1;
+        }
+    }
+    $region_score = 0.5;
+    if ($row["region"] == $region) {
+        $region_score = 1;}
+    $final_score = ($style_score * 0.45) + ($color_score * 0.40) + ($region_score * 0.15);
+    $row["bundle_score"] = round($final_score, 4);
+    $scored[] = $row;
+}
+
+$bundle = [];
+$total = 0;
+for ($i = 0; $i < count($order); $i++) {
+    $cat = $order[$i];
+    $best = null;
+    for ($j = 0; $j < count($scored); $j++) {
+        $it = $scored[$j];
+        if ($it["category"] != $cat) {
+            continue;
+        }
+        if ($total + $it["price"] > $budget) {
+            continue;
+        }
+        if ($best == null || $it["bundle_score"] > $best["bundle_score"]) {
+            $best = $it;
+        }
+    }
+    if ($best != null) {
+        $bundle[] = $best;
+        $total = $total + $best["price"];
+    }}
+$response = [];
+$response["items"] = $bundle;
+$response["total"] = $total;
+$response["budget"] = $budget;
+$response["remaining"] = $budget - $total;
+echo json_encode($response); ?>
+
+at first we get the room session and all the info such as type color budget etc... then we convert the color from the HEX format to RGB and calculates how close each furniture color is to the rooms dominant colors, the closer the color the higher the score ...then we chose the correct categories for the room type for example sofa coffee table for living room or beds for bedrooms,, then we filter the suitable pieces by the room type and minimum area requirement.... after that we score every item so an item with a matching style, compatible color, and matching region gets a higher score... then the bundle gets built by getting the highest score item of each category and updates the total cost... calculates remaining budget and total bundle cost and returns all to the user.	
+
+10) get_catalog.php :
+
+<?php
+include(__DIR__ . "/connection.php");
+include(__DIR__ . "/jwt.php");
+include(__DIR__ . "/auth_check.php");
+
+$userid = $payload["user_id"];
+
+$sql = "SELECT * FROM furniture_items ORDER BY name";
+$query = $mysql->prepare($sql);
+$query->execute();
+$array = $query->get_result();
+
+$items = [];    
+while ($row = $array->fetch_assoc()) {
+    $items[] = $row;}
+echo json_encode($items);
+?>
+
+checks auth then gets all furniture items and sorts alphabetically by name and stores in array and returns the list.
+
+11) get_favorites.php : 
+
+<?php
+include(__DIR__ . "/connection.php");
+include(__DIR__ . "/jwt.php");
+include(__DIR__ . "/auth_check.php");
+
+$userid = $payload["user_id"];
+
+$sql = "SELECT item_id FROM favorites WHERE user_id = ? ORDER BY created_at DESC";
+$query = $mysql->prepare($sql);
+$query->bind_param("i", $userid);
+$query->execute();
+$array = $query->get_result();
+
+$items = [];
+while ($row = $array->fetch_assoc()) {
+    $sql2 = "SELECT * FROM furniture_items WHERE item_id = ?";
+    $query2 = $mysql->prepare($sql2);
+    $query2->bind_param("i", $row["item_id"]);
+    $query2->execute();
+    $array2 = $query2->get_result();
+    $item = $array2->fetch_assoc();
+
+    if ($item) {
+        $items[] = $item;
+    }
+}
+
+echo json_encode($items);
+?>
+
+verifies if the user as a valid token then searches the favorites table for the stuff the user has as favorites orders it to show most recently added to least and for each item gets all info and adds them if they exist in db and returns the full list of items.
+
+12) get_matches.php :
+
+<?php
+include(__DIR__ . "/connection.php");
+include(__DIR__ . "/jwt.php");
+include(__DIR__ . "/auth_check.php");
+
+$userid = $payload["user_id"];
+$sessionid = $_GET["session"];
+$sql = "SELECT * FROM room_sessions WHERE session_id = ?";
+$query = $mysql->prepare($sql);
+$query->bind_param("i", $sessionid);
+$query->execute();
+$array = $query->get_result();
+$session = $array->fetch_assoc();
+
+if (!$session) {
+    $response = [];
+    $response["error"] = "session not found";
+    echo json_encode($response);
+    exit();
+}
+
+$room_type = $session["room_type"];
+$style_pref = $session["style_pref"];
+$budget = $session["budget"];
+$region = $session["region"];
+$room_area = $session["room_area"];
+$room_colors = explode(",", $session["dominant_colors"]);
+$style_list = explode(",", $style_pref);
+function hex_to_rgb($hex) {
+    $hex = str_replace("#", "", $hex);
+    $r = hexdec(substr($hex, 0, 2));
+    $g = hexdec(substr($hex, 2, 2));
+    $b = hexdec(substr($hex, 4, 2));
+    return [$r, $g, $b];
+}
+function color_distance($rgb1, $rgb2) {
+    $dr = $rgb1[0] - $rgb2[0];
+    $dg = $rgb1[1] - $rgb2[1];
+    $db = $rgb1[2] - $rgb2[2];
+    return sqrt($dr * $dr + $dg * $dg + $db * $db);
+}
+
+$room_rgb_list = [];
+for ($i = 0; $i < count($room_colors); $i++) {
+    $room_rgb_list[] = hex_to_rgb($room_colors[$i]);
+}
+$sql = "SELECT * FROM furniture_items WHERE room_type = ? AND price <= ? AND min_room_area <= ?";
+$area_check = $room_area > 0 ? $room_area : 999999;
+$query = $mysql->prepare($sql);
+$query->bind_param("sdd", $room_type, $budget, $area_check);
+$query->execute();
+$array = $query->get_result();
+$items = [];
+
+while ($row = $array->fetch_assoc()) {
+    $item_rgb = hex_to_rgb($row["color_hex"]);
+    $min_distance = 999999;
+    for ($i = 0; $i < count($room_rgb_list); $i++) {
+        $dist = color_distance($room_rgb_list[$i], $item_rgb);
+        if ($dist < $min_distance) {
+            $min_distance = $dist;
+        } }
+    $max_distance = 441.67;
+    $color_score = 1 - ($min_distance / $max_distance);
+    if ($color_score < 0) {
+        $color_score = 0;
+    }
+    $style_score = 0.3;
+    for ($k = 0; $k < count($style_list); $k++) {
+        if ($row["style"] == $style_list[$k]) {
+            $style_score = 1;
+        }
+    }
+
+    $price_score = 1 - ($row["price"] / $budget);
+    if ($price_score < 0) {
+        $price_score = 0;}
+
+    $region_score = 0.5;
+    if ($row["region"] == $region) {
+        $region_score = 1;}
+
+    $final_score = ($style_score * 0.4) + ($color_score * 0.35) + ($price_score * 0.15) + ($region_score * 0.1);
+
+    $reasons = [];
+    if ($style_score == 1) {
+        $reasons[] = "matches your " . $row["style"] . " style";
+    }
+    if ($color_score > 0.7) {
+        $reasons[] = "complements your room's colors";
+    }
+    if ($row["price"] <= $budget) {
+        $reasons[] = "is within your budget";
+    }
+    if ($region_score == 1) {
+        $reasons[] = "is available in your region";
+    }
+    if ($room_area > 0) {
+        $reasons[] = "fits your " . $room_area . " m2 room";
+    }
+
+    if (count($reasons) == 0) {
+        $reasons[] = "is a close match to your preferences";
+    }
+
+    $row["match_score"] = round($final_score, 4);
+    $row["style_score"] = round($style_score, 4);
+    $row["color_score"] = round($color_score, 4);
+    $row["price_score"] = round($price_score, 4);
+    $row["explanation"] = "Recommended because it " . implode(", ", $reasons);
+
+    $items[] = $row;
+}
+usort($items, function($a, $b) {
+    if ($a["match_score"] == $b["match_score"]) {
+        return 0;
+    }
+    return ($a["match_score"] < $b["match_score"]) ? 1 : -1;
+});
+
+$top_items = array_slice($items, 0, 9);
+$sql = "SELECT * FROM match_results WHERE session_id = ?";
+$query = $mysql->prepare($sql);
+$query->bind_param("i", $sessionid);
+$query->execute();
+$check = $query->get_result();
+if ($check->num_rows == 0) {
+    for ($i = 0; $i < count($top_items); $i++) {
+        $it = $top_items[$i];
+        $sql = "INSERT INTO match_results(session_id, item_id, match_score, style_score, color_score, price_score, explanation) VALUES(?, ?, ?, ?, ?, ?, ?)";
+        $query = $mysql->prepare($sql);
+        $query->bind_param("iidddds", $sessionid, $it["item_id"], $it["match_score"], $it["style_score"], $it["color_score"], $it["price_score"], $it["explanation"]);
+        $query->execute();
+    }
+}
+echo json_encode($top_items);
+
+?>
+
+we get the room sessions info like color type region size and budget then filters furniture that doesn't fit room type , budget, or room size...and scores the match prioritizing style and color compatibility and also considering price and region,, then for every recommendation it generates a human readable explanation... then for the final result they are sorted from highest match to lowest and only the top 9 items are stored in the list.
+
+13) get_profile.php :
+
+<?php
+include(__DIR__ . "/connection.php");
+include(__DIR__ . "/jwt.php");
+include(__DIR__ . "/auth_check.php");
+
+$userid = $payload["user_id"];
+
+$sql = "SELECT username, email, created_at FROM users WHERE user_id = ?";
+$query = $mysql->prepare($sql);
+$query->bind_param("i", $userid);
+$query->execute();
+$array = $query->get_result();
+$user = $array->fetch_assoc();
+
+echo json_encode($user);
+?>
+
+gets users auth token and id and gets all his id, profile info.
+
+14) get_session.php :
+
+<?php
+include(__DIR__ . "/connection.php");
+include(__DIR__ . "/jwt.php");
+include(__DIR__ . "/auth_check.php");
+
+$userid = $payload["user_id"];
+$sessionid = $_GET["session"];
+$sql = "SELECT * FROM room_sessions WHERE session_id = ?";
+$query = $mysql->prepare($sql);
+$query->bind_param("i", $sessionid);
+$query->execute();
+$array = $query->get_result();
+$session = $array->fetch_assoc();
+
+if (!$session) {
+    $response = [];
+    $response["error"] = "session not found";
+    echo json_encode($response);
+    exit();}
+echo json_encode($session);?>
+
+validates jwt token then gets the session id and looks for room session in the db and if fails returns not found and if it exists return the session as JSON.
+
+15) get_sessions.php :
+
+<?php
+include(__DIR__ . "/connection.php");
+include(__DIR__ . "/jwt.php");
+include(__DIR__ . "/auth_check.php");
+
+$userid = $payload["user_id"];
+$sql = "SELECT * FROM room_sessions WHERE user_id = ? ORDER BY created_at DESC";
+$query = $mysql->prepare($sql);
+$query->bind_param("i", $userid);
+$query->execute();
+$array = $query->get_result();
+
+$sessions = [];
+while ($row = $array->fetch_assoc()) {
+    $sessions[] = $row;
+}
+echo json_encode($sessions);
+?>
+
+basically the same as the get_session.php files but gets a group of all hte users sessions filtered from newest to oldest and returned as list.
+
+16) jwt.php :
+
+<?php
+
+$secret = "roommatch_secret_key_2026";
+
+function b64url_encode($data) {
+    return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
+}
+
+function b64url_decode($data) {
+    return base64_decode(strtr($data, '-_', '+/'));
+}
+
+function create_token($userid, $username, $is_admin) {
+    global $secret;
+
+    $header = json_encode(["alg" => "HS256", "typ" => "JWT"]);
+    $payload = json_encode([
+        "user_id" => $userid,
+        "username" => $username,
+        "is_admin" => $is_admin,
+        "exp" => time() + 86400
+    ]);
+
+    $header_enc = b64url_encode($header);
+    $payload_enc = b64url_encode($payload);
+
+    $sig = hash_hmac("sha256", $header_enc . "." . $payload_enc, $secret, true);
+    $sig_enc = b64url_encode($sig);
+
+    return $header_enc . "." . $payload_enc . "." . $sig_enc;
+}
+
+function verify_token($token) {
+    global $secret;
+
+    $parts = explode(".", $token);
+    if (count($parts) != 3) {
+        return false;
+    }
+
+    $header_enc = $parts[0];
+    $payload_enc = $parts[1];
+    $sig_enc = $parts[2];
+
+    $expected = b64url_encode(hash_hmac("sha256", $header_enc . "." . $payload_enc, $secret, true));
+
+    if ($sig_enc != $expected) {
+        return false;
+    }
+
+    $payload = json_decode(b64url_decode($payload_enc), true);
+
+    if ($payload["exp"] < time()) {
+        return false;
+    }
+
+    return $payload;
+}
+
+?>
+
+this file handles the full JWT authentication algorithm...it creates a token at first for the user the token expires after 24 hours then signs digitally the token using my secret key,, then verifies the token if its in correct format , if the signature is valid,if it expired or not...base64 helper functions convert data to and from the special BASE64 format used in JWT...they safely store it in the header.
+
+17) login.php : 
+
+<?php
+include(__DIR__ . "/connection.php");
+include(__DIR__ . "/jwt.php");
+
+$input = json_decode(file_get_contents("php://input"), true);
+$email = $input["email"];
+$password = $input["password"];
+$sql = "SELECT * FROM users WHERE email = ?";
+$query = $mysql->prepare($sql);
+$query->bind_param("s", $email);
+$query->execute();
+$array = $query->get_result();
+$user = $array->fetch_assoc();
+if (!$user) {
+    $response = [];
+    $response["success"] = false;
+    $response["message"] = "Invalid email or password!";
+    echo json_encode($response);
+    exit();}
+if (password_verify($password, $user["password_hash"])) {
+    $token = create_token($user["user_id"], $user["username"], $user["is_admin"]);
+    $response = [];
+    $response["success"] = true;
+    $response["token"] = $token;
+    $response["username"] = $user["username"];
+    $response["is_admin"] = $user["is_admin"];
+    echo json_encode($response);
+} else {
+    $response = [];
+    $response["success"] = false;
+    $response["message"] = "Invalid email or password!";
+    echo json_encode($response);}
+?>
+
+auth for log in of users... receives email and pass as JSON searches the users table and if it doesn't exist return invalid...if it exists it verifies the password with the stored hash password... if pass is correct it stores a JWT with the user id username and if admin or not... if not correct shows invalid.
+
+18) rename_session.php :
+
+<?php
+include(__DIR__ . "/connection.php");
+include(__DIR__ . "/jwt.php");
+include(__DIR__ . "/auth_check.php");
+
+$userid = $payload["user_id"];
+$input = json_decode(file_get_contents("php://input"), true);
+$sessionid = $input["session_id"];
+$nickname = $input["nickname"];
+
+$sql = "UPDATE room_sessions SET nickname = ? WHERE session_id = ? AND user_id = ?";
+$query = $mysql->prepare($sql);
+$query->bind_param("sii", $nickname, $sessionid, $userid);
+if ($query->execute()) {
+    $response = [];
+    $response["success"] = true;
+    echo json_encode($response);
+} else {
+    $response = [];
+    $response["error"] = $mysql->error;
+    echo json_encode($response);}?>
+
+checks jwt then gets users logged in id from the token then gets session id and a new nickname, updates the nickname only if the session belongs to the authenticated user, returns success if update works.
+
+19) save_session.php :
+
+<?php
+include(__DIR__ . "/connection.php");
+include(__DIR__ . "/jwt.php");
+include(__DIR__ . "/auth_check.php");
+
+$userid = $payload["user_id"];
+$input = json_decode(file_get_contents("php://input"), true);
+$room_type = $input["room_type"];
+$style_pref = $input["style_pref"];
+$budget = $input["budget"];
+$region = $input["region"];
+$colors = $input["dominant_colors"];
+$room_area = $input["room_area"];
+
+if ($room_area == "") {
+    $room_area = 0;}
+
+$sql = "INSERT INTO room_sessions(user_id, room_type, dominant_colors, style_pref, budget, region, room_area) VALUES(?, ?, ?, ?, ?, ?, ?)";
+$query = $mysql->prepare($sql);
+$query->bind_param("isssdsd", $userid, $room_type, $colors, $style_pref, $budget, $region, $room_area);
+$query->execute();
+$sessionid = $mysql->insert_id;
+$response = [];
+$response["session_id"] = $sessionid;
+echo json_encode($response);
+?>
+
+verifies users id and jwt then get room info type style etc... save all info as a new record in room_sessions table and gets id of new session and returns id.
+
+20) signup.php :
+
+<?php
+include(__DIR__ . "/connection.php");
+include(__DIR__ . "/jwt.php");
+$input = json_decode(file_get_contents("php://input"), true);
+
+$username = $input["username"];
+$email = $input["email"];
+$password = $input["password"];
+$sql = "SELECT user_id FROM users WHERE email = ?";
+
+$query = $mysql->prepare($sql);
+$query->bind_param("s", $email);
+$query->execute();
+$array = $query->get_result();
+
+if ($array->num_rows > 0) {
+    $response = [];
+    $response["success"] = false;
+    $response["message"] = "Email already registered!";
+    echo json_encode($response);
+    exit();}
+$hash = password_hash($password, PASSWORD_BCRYPT);
+$sql = "INSERT INTO users(username, email, password_hash) VALUES(?, ?, ?)";
+$query = $mysql->prepare($sql);
+$query->bind_param("sss", $username, $email, $hash);
+
+$query->execute();
+$userid = $mysql->insert_id;
+$token = create_token($userid, $username, 0);
+$response = [];
+$response["success"] = true;
+$response["token"] = $token;
+$response["username"] = $username;
+$response["is_admin"] = 0;
+echo json_encode($response);
+
+?>
+
+gets user id email and pass as json then checks if email is registered already if it doesn't it hashes the password and creates new user in db and gets the newly created id and sets isadmin to 0 then returns the token username and admin status.
+
+21) toggle_favorite.php :
+
+<?php
+include(__DIR__ . "/connection.php");
+include(__DIR__ . "/jwt.php");
+include(__DIR__ . "/auth_check.php");
+
+$userid = $payload["user_id"];
+$input = json_decode(file_get_contents("php://input"), true);
+$itemid = $input["item_id"];
+$sql = "SELECT fav_id FROM favorites WHERE user_id = ? AND item_id = ?";
+$query = $mysql->prepare($sql);
+$query->bind_param("ii", $userid, $itemid);
+
+$query->execute();
+$array = $query->get_result();
+
+if ($array->num_rows > 0) {
+    $sql = "DELETE FROM favorites WHERE user_id = ? AND item_id = ?";
+    $query = $mysql->prepare($sql);
+    $query->bind_param("ii", $userid, $itemid);
+    $query->execute();
+    $response = [];
+    $response["favorited"] = false;
+    echo json_encode($response);
+} else {
+    $sql = "INSERT INTO favorites(user_id, item_id) VALUES(?, ?)";
+    $query = $mysql->prepare($sql);
+    $query->bind_param("ii", $userid, $itemid);
+    $query->execute();
+    $response = [];
+    $response["favorited"] = true;
+    echo json_encode($response);}
+?>
+
+verifies user then gets id and retrieves the furtniture id and checks if user favorited the item if not it adds it to favorites.
+
+22) update_profile.php :
+
+<?php
+include(__DIR__ . "/connection.php");
+include(__DIR__ . "/jwt.php");
+include(__DIR__ . "/auth_check.php");
+$userid = $payload["user_id"];
+$input = json_decode(file_get_contents("php://input"), true);
+$username = $input["username"];
+
+$current_password = $input["current_password"];
+$new_password = $input["new_password"];
+
+$sql = "SELECT password_hash FROM users WHERE user_id = ?";
+$query = $mysql->prepare($sql);
+$query->bind_param("i", $userid);
+$query->execute();
+$array = $query->get_result();
+$user = $array->fetch_assoc();
+if (!password_verify($current_password, $user["password_hash"])) {
+    $response = [];
+    $response["success"] = false;
+    $response["message"] = "Current password is incorrect!";
+    echo json_encode($response);
+    exit();}
+if ($new_password != "") {
+    $hash = password_hash($new_password, PASSWORD_BCRYPT);
+    $sql = "UPDATE users SET username = ?, password_hash = ? WHERE user_id = ?";
+    $query = $mysql->prepare($sql);
+    $query->bind_param("ssi", $username, $hash, $userid);
+} else {
+    $sql = "UPDATE users SET username = ? WHERE user_id = ?";
+    $query = $mysql->prepare($sql);
+    $query->bind_param("si", $username, $userid);}
+if ($query->execute()) {
+    $response = [];
+    $response["success"] = true;
+    $response["username"] = $username;
+    echo json_encode($response);
+} else {
+    $response = [];
+    $response["error"] = $mysql->error;
+    echo json_encode($response);
+
+}?>
+
+verifies jwt and gets users id and receives new username current pass and optional new password then checks if current pass is correct, if a new password was provided it hashes it and updates username and password if no pass was provided only updates username.
