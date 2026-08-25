@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>RoomMatch - Catalog</title>
+<title>RoomMatch - Profile</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -15,10 +15,10 @@
 <nav class="main_nav">
 <a href="../../index.html">Home</a>
 <a href="upload.html">Upload</a>
-<a href="catalog.html" class="active">Catalog</a>
+<a href="catalog.html">Catalog</a>
 <a href="myrooms.html">My Rooms</a>
 <a href="favorites.html">Favorites</a>
-<a href="profile.html">Profile</a>
+<a href="profile.html" class="active">Profile</a>
 </nav>
 <nav class="auth_nav">
 <a href="login.html">Log In</a>
@@ -26,20 +26,44 @@
 </header>
 
 <div class="page_band">
-<h1>Browse the catalog</h1>
-<p>Every piece RoomMatch can recommend, across both room types.</p>
+<h1>Your profile</h1>
+<p>Update your account details.</p>
 </div>
 
-<div class="filter_bar">
-<div class="filter_chips" id="filter_chips"></div>
-<select id="sort_select">
-<option value="name">Sort: Name</option>
-<option value="price_low">Sort: Price Low to High</option>
-<option value="price_high">Sort: Price High to Low</option>
-</select>
+<div class="form_wrap">
+<div class="form_card">
+<h2>Account info</h2>
+<p class="price_line" id="account_email"></p>
+<p class="price_line" id="account_since"></p>
+</div>
 </div>
 
-<div class="results_grid" id="catalog_grid"></div>
+<div class="form_wrap">
+<div class="form_card">
+<h2>Edit profile</h2>
+
+<form id="profile_form">
+<div class="field">
+<label for="p_username">Username</label>
+<input type="text" id="p_username" />
+</div>
+
+<div class="field">
+<label for="p_current">Current Password</label>
+<input type="password" id="p_current" placeholder="required to save changes" />
+</div>
+
+<div class="field">
+<label for="p_new">New Password (optional)</label>
+<input type="password" id="p_new" placeholder="leave blank to keep current password" />
+</div>
+
+<p class="error_text" id="profile_error"></p>
+
+<button type="button" id="save_profile_btn" class="cta_button">Save Changes</button>
+</form>
+</div>
+</div>
 
 <footer class="site_footer">
 <div class="divider_strip">
@@ -70,20 +94,9 @@
 <p class="copyright">&copy; RoomMatch 2026</p>
 </footer>
 
-<div id="chat_widget">
-<button id="chat_toggle">💬</button>
-<div id="chat_panel">
-<div class="chat_header">Design Assistant</div>
-<div id="chat_messages"></div>
-<div class="chat_input_row">
-<input type="text" id="chat_input" placeholder="Ask about styles, budget..." />
-<button id="chat_send">Send</button>
-</div>
-</div>
-</div>
-<script src="../js/ui_helpers.js"></script>
 <script src="../js/auth_nav.js"></script>
-<script src="../js/catalog.js"></script>
+<script src="../js/ui_helpers.js"></script>
+<script src="../js/profile.js"></script>
 <script src="../js/chatbot.js"></script>
 </body>
 </html>
