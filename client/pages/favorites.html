@@ -15,9 +15,9 @@
 <nav class="main_nav">
 <a href="../../index.html">Home</a>
 <a href="upload.html">Upload</a>
+<a href="catalog.html">Catalog</a>
 <a href="myrooms.html">My Rooms</a>
 <a href="favorites.html" class="active">Favorites</a>
-<a href="catalog.html">Catalog</a>
 </nav>
 <nav class="auth_nav">
 <a href="login.html">Log In</a>
@@ -60,7 +60,20 @@
 <p class="copyright">&copy; RoomMatch 2026</p>
 </footer>
 
+<div id="chat_widget">
+<button id="chat_toggle">💬</button>
+<div id="chat_panel">
+<div class="chat_header">Design Assistant</div>
+<div id="chat_messages"></div>
+<div class="chat_input_row">
+<input type="text" id="chat_input" placeholder="Ask about styles, budget..." />
+<button id="chat_send">Send</button>
+</div>
+</div>
+</div>
+
 <script src="../js/auth_nav.js"></script>
 <script src="../js/favorites.js"></script>
+<script src="../js/chatbot.js"></script>
 </body>
 </html>

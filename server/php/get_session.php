@@ -10,16 +10,12 @@ if (isset($headers["Authorization"])) {
 
 $token = str_replace("Bearer ", "", $auth);
 $payload = verify_token($token);
-
 if (!$payload) {
     $response = [];
     $response["error"] = "unauthorized";
     echo json_encode($response);
-    exit();
-}
-
+    exit();}
 $sessionid = $_GET["session"];
-
 $sql = "SELECT * FROM room_sessions WHERE session_id = ?";
 $query = $mysql->prepare($sql);
 $query->bind_param("i", $sessionid);
@@ -31,9 +27,5 @@ if (!$session) {
     $response = [];
     $response["error"] = "session not found";
     echo json_encode($response);
-    exit();
-}
-
-echo json_encode($session);
-
-?>
+    exit();}
+echo json_encode($session);?>

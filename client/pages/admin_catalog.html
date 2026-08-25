@@ -93,15 +93,16 @@
 <div class="field">
 <label for="f_region">Region</label>
 <select id="f_region">
-<div class="field">
-<label for="f_area">Minimum Room Area (m²)</label>
-<input type="number" id="f_area" placeholder="e.g. 12" />
-</div>
 <option value="jordan">Jordan</option>
 <option value="gcc">GCC</option>
 <option value="international">International</option>
 </select>
 </div>
+</div>
+
+<div class="field">
+<label for="f_area">Minimum Room Area (m²)</label>
+<input type="number" id="f_area" placeholder="e.g. 12" />
 </div>
 
 <div class="field">
@@ -111,7 +112,7 @@
 
 <div class="field">
 <label for="f_image">Image URL</label>
-<input type="text" id="f_image" placeholder="../images/furniture/item_x.jpg or full URL" />
+<input type="text" id="f_image" placeholder="../images/furniture/sofa1.jpg or full URL" />
 </div>
 
 <div class="field">
@@ -162,7 +163,20 @@
 <p class="copyright">&copy; RoomMatch 2026</p>
 </footer>
 
+<div id="chat_widget">
+<button id="chat_toggle">💬</button>
+<div id="chat_panel">
+<div class="chat_header">Design Assistant</div>
+<div id="chat_messages"></div>
+<div class="chat_input_row">
+<input type="text" id="chat_input" placeholder="Ask about styles, budget..." />
+<button id="chat_send">Send</button>
+</div>
+</div>
+</div>
+
 <script src="../js/auth_nav.js"></script>
 <script src="../js/admin_catalog.js"></script>
+<script src="../js/chatbot.js"></script>
 </body>
 </html>
