@@ -14,7 +14,6 @@ if (!$payload || $payload["is_admin"] != 1) {
     $response["error"] = "unauthorized";
     echo json_encode($response);
     exit();}
-
 $sql = "SELECT * FROM furniture_items ORDER BY item_id DESC";
 $query = $mysql->prepare($sql);
 $query->execute();
@@ -23,7 +22,4 @@ $items = [];
 while ($row = $array->fetch_assoc()) {
     $items[] = $row;
 }
-
-echo json_encode($items);
-
-?>
+echo json_encode($items); ?>

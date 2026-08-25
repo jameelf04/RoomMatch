@@ -18,7 +18,7 @@ $query = $mysql->prepare($sql);
 $query->execute();
 $array = $query->get_result();
 
-$items = [];
+$items = [];    
 while ($row = $array->fetch_assoc()) {
     $items[] = $row;}
 echo json_encode($items);
