@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>RoomMatch - Admin</title>
+<title>RoomMatch - Monitoring</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -13,11 +13,9 @@
 <header class="site_header">
 <a href="../../index.html" class="logo">RoomMatch</a>
 <nav class="main_nav">
-<a href="../../index.html">Home</a>
-<a href="upload.html">Upload</a>
-<a href="myrooms.html">My Rooms</a>
-<a href="admin.html" class="active">Admin</a>
-<a href="admin_monitoring.html">Monitoring</a>
+<a href="admin.html">Admin</a>
+<a href="admin_catalog.html">Catalog</a>
+<a href="admin_monitoring.html" class="active">Monitoring</a>
 </nav>
 <nav class="auth_nav">
 <a href="login.html">Log In</a>
@@ -25,32 +23,22 @@
 </header>
 
 <div class="page_band">
-<h1>Admin dashboard</h1>
-<p>System overview and catalog management.</p>
+<h1>System monitoring</h1>
+<p>Live request health for today.</p>
 </div>
 
-<div class="stats_grid" id="stats_grid"></div>
+<div id="alert_banner"></div>
 
-<div class="admin_two_col">
-<div class="form_card">
-<h2>Sessions by room type</h2>
-<div id="by_room"></div>
-</div>
-<div class="form_card">
-<h2>Sessions by style</h2>
-<div id="by_style"></div>
-</div>
-</div>
+<div class="stats_grid" id="monitor_stats"></div>
 
 <div class="admin_two_col">
 <div class="form_card">
-<h2>Most favorited items</h2>
-<div id="top_favs"></div>
+<h2>Recent errors</h2>
+<div id="recent_errors_list"></div>
 </div>
 <div class="form_card">
-<h2>Catalog</h2>
-<p style="margin-bottom: 20px; color: #5A574F;">Add, edit, or remove furniture items.</p>
-<a href="admin_catalog.html" class="cta_button">Manage Catalog</a>
+<h2>About this dashboard</h2>
+<p style="color: #5A574F; font-size: 0.9rem; line-height: 1.6;">Every API request logs its endpoint, status code, and response time to the request_logs table. This page reads that table to show today's traffic, error rate, and response time percentiles, with an alert if the last hour's error rate crosses 5%.</p>
 </div>
 </div>
 
@@ -84,7 +72,6 @@
 </footer>
 
 <script src="../js/auth_nav.js"></script>
-<script src="../js/admin.js"></script>
-<script src="../js/chatbot.js"></script>
+<script src="../js/admin_monitoring.js"></script>
 </body>
 </html>

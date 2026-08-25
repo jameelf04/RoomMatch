@@ -1,4 +1,5 @@
 <?php
+include(__DIR__ . "/log_helper.php");
 include(__DIR__ . "/connection.php");
 include(__DIR__ . "/jwt.php");
 
