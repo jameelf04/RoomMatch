@@ -43,9 +43,11 @@ const toggleFavorite = (itemId, btn) => {
         if (data.favorited) {
             btn.classList.add("faved");
             btn.innerHTML = "&#10084;";
+            showToast("Added to favorites", "success");
         } else {
             btn.classList.remove("faved");
             btn.innerHTML = "&#9825;";
+            showToast("Removed from favorites", "success");
         }
     });
 };

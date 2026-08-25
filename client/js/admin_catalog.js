@@ -60,20 +60,26 @@ const loadItems = () => {
             });
 
             const deleteBtn = card.querySelector(".delete_btn");
+                        const deleteBtn = card.querySelector(".delete_btn");
             deleteBtn.addEventListener("click", () => {
-                fetch("../../server/php/admin_delete_item.php", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": "Bearer " + localStorage.getItem("token")
-                    },
-                    body: JSON.stringify({ item_id: item.item_id })
-                })
-                .then((res) => res.json())
-                .then((data) => {
-                    if (data.success) {
-                        loadItems();
-                    }
+                showConfirm("Delete this item?", "This removes it from the catalog and any favorites.", () => {
+                    fetch("../../server/php/admin_delete_item.php", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": "Bearer " + localStorage.getItem("token")
+                        },
+                        body: JSON.stringify({ item_id: item.item_id })
+                    })
+                    .then((res) => res.json())
+                    .then((data) => {
+                        if (data.success) {
+                            showToast("Item deleted", "success");
+                            loadItems();
+                        } else {
+                            showToast("Something went wrong", "error");
+                        }
+                    });
                 });
             });
 
@@ -137,10 +143,11 @@ saveBtn.addEventListener("click", () => {
     .then((res) => res.json())
     .then((data) => {
         if (data.success) {
+            showToast("Item saved", "success");
             resetForm();
             loadItems();
         } else {
-            formError.innerText = "something went wrong saving the item";
+            showToast("Something went wrong saving the item", "error");
         }
     })
     .catch(() => {

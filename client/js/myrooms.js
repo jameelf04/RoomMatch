@@ -58,47 +58,51 @@ const loadSessions = () => {
 
             const renameBtn = card.querySelector(".rename_btn");
             renameBtn.addEventListener("click", () => {
-                const newName = prompt("Name this room:", s.nickname != "" ? s.nickname : roomLabel);
-                if (newName == null) {
-                    return;
-                }
-
-                fetch("../../server/php/rename_session.php", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": "Bearer " + localStorage.getItem("token")
-                    },
-                    body: JSON.stringify({ session_id: s.session_id, nickname: newName })
-                })
-                .then((res) => res.json())
-                .then((data) => {
-                    if (data.success) {
-                        loadSessions();
+                showPrompt("Name this room", s.nickname != "" ? s.nickname : roomLabel, (newName) => {
+                    if (newName == "") {
+                        return;
                     }
+
+                    fetch("../../server/php/rename_session.php", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": "Bearer " + localStorage.getItem("token")
+                        },
+                        body: JSON.stringify({ session_id: s.session_id, nickname: newName })
+                    })
+                    .then((res) => res.json())
+                    .then((data) => {
+                        if (data.success) {
+                            showToast("Room renamed", "success");
+                            loadSessions();
+                        } else {
+                            showToast("Something went wrong", "error");
+                        }
+                    });
                 });
             });
 
             const deleteBtn = card.querySelector(".delete_btn");
             deleteBtn.addEventListener("click", () => {
-                const confirmed = confirm("Delete this room and its matches?");
-                if (!confirmed) {
-                    return;
-                }
-
-                fetch("../../server/php/delete_session.php", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": "Bearer " + localStorage.getItem("token")
-                    },
-                    body: JSON.stringify({ session_id: s.session_id })
-                })
-                .then((res) => res.json())
-                .then((data) => {
-                    if (data.success) {
-                        loadSessions();
-                    }
+                showConfirm("Delete this room?", "This will remove the room and its matches permanently.", () => {
+                    fetch("../../server/php/delete_session.php", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": "Bearer " + localStorage.getItem("token")
+                        },
+                        body: JSON.stringify({ session_id: s.session_id })
+                    })
+                    .then((res) => res.json())
+                    .then((data) => {
+                        if (data.success) {
+                            showToast("Room deleted", "success");
+                            loadSessions();
+                        } else {
+                            showToast("Something went wrong", "error");
+                        }
+                    });
                 });
             });
 

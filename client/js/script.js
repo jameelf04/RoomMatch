@@ -224,7 +224,7 @@ submitBtn.addEventListener("click", () => {
             uploadError.innerText = "something went wrong saving your session";
         }
     })
-    .catch(() => {
-        uploadError.innerText = "something went wrong saving your session";
+        .catch(() => {
+        showToast("Something went wrong, please try again", "error");
     });
 });

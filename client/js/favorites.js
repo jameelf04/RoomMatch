@@ -46,7 +46,7 @@ fetch("../../server/php/get_favorites.php", {
         `;
 
         const favBtn = card.querySelector(".fav_btn");
-        favBtn.addEventListener("click", () => {
+                favBtn.addEventListener("click", () => {
             fetch("../../server/php/toggle_favorite.php", {
                 method: "POST",
                 headers: {
@@ -57,6 +57,7 @@ fetch("../../server/php/get_favorites.php", {
             })
             .then((res) => res.json())
             .then(() => {
+                showToast("Removed from favorites", "success");
                 card.remove();
                 if (favGrid.children.length == 0) {
                     favGrid.innerHTML = `
