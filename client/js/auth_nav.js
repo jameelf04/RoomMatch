@@ -38,3 +38,15 @@ for (let i = 0; i < startBtns.length; i++) {
         startBtns[i].href = "client/pages/upload.html";
     }
 }
+
+const navToggleHtml = `<button id="nav_toggle" class="nav_toggle">&#9776;</button>`;
+const header = document.querySelector(".site_header");
+if (header && window.innerWidth <= 700) {
+    header.insertAdjacentHTML("afterbegin", navToggleHtml);
+    document.body.classList.add("nav_collapsed");
+
+    const toggle = document.getElementById("nav_toggle");
+    toggle.addEventListener("click", () => {
+        header.classList.toggle("nav_open");
+    });
+}
